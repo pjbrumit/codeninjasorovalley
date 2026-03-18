@@ -921,6 +921,9 @@ game.onUpdateInterval(500, function () {
 
     if (!gameStarted) return
 
+    // retry present spawn if it should exist but hasn't been created yet
+    maybeSpawnPresent()
+
     // blink tree lights
     treeLightsOn = !treeLightsOn
     if (treeLightsOn) {

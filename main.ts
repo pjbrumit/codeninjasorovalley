@@ -215,7 +215,7 @@ function startLevel() {
 
     // load tilemap
     tiles.setCurrentTilemap(LEVEL_TILEMAPS[currentLevel])
-    effects.blizzard.startScreenEffect()
+    effects.confetti.startScreenEffect()
 
     // create player once, reuse later
     if (!mySprite) {
@@ -305,7 +305,7 @@ function showHuntPresentHint() {
         huntHintSprite = null
     }
 
-    const text = "Find the present!"
+    const text = "Find the Easter Bunny!"
     const charW = 8
     const padding = 4
 
@@ -471,7 +471,7 @@ function showTitleScreen() {
     // header text
     printCenteredInBox(title, "CODE NINJAS", signY + 8, 8, signX, signW)
     printCenteredInBox(title, "ORO VALLEY", signY + 20, 8, signX, signW)
-    printCenteredInBox(title, "CANDY CANE RUN", signY + 32, 2, signX + 10, signW)
+    printCenteredInBox(title, "EGG HUNT", signY + 32, 2, signX + 10, signW)
     printCenteredInBox(title, "Play it. Hack it.", signY + 44, 9, signX + 15, signW)
 
     if (titlePage == 0) {
@@ -505,7 +505,7 @@ function showTitleScreen() {
         printCenteredShadow(title, "HOW TO PLAY", 75, 5)
         title.print("A = jump", 12, 85, 5)
         title.print("\u2190/\u2192 = move", 1, 94, 5)
-        title.print("Grab the candy canes!", 4, 105, 5)
+        title.print("Grab the Easter eggs!", 4, 105, 5)
 
     } else {
         // PAGE 3: URL / call to action
@@ -523,7 +523,7 @@ function showTitleScreen() {
 function finishGameWithTotal(fromTimer: boolean) {
     gameStarted = false
     info.stopCountdown()
-    effects.blizzard.endScreenEffect()
+    effects.confetti.endScreenEffect()
 
     const total = totalCandyCollected
     let header = fromTimer ? "Time's up!\n" : "Great job!\n"
@@ -536,7 +536,7 @@ function finishGameWithTotal(fromTimer: boolean) {
     )
     game.showLongText(
         header +
-        "You collected " + total + " candy canes\n" +
+        "You collected " + total + " eggs\n" +
         "across all levels!",
         DialogLayout.Center
     )
@@ -601,7 +601,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Present, function (player, gift)
     const banner = sprites.create(image.create(140, 24), SpriteKind.Hint)
     banner.image.fill(0)
     banner.image.print("Level " + levelNumber + " complete!", 4, 4, 1)
-    banner.image.print(thisLevelCandy + " / " + target + " candy", 4, 14, 1)
+    banner.image.print(thisLevelCandy + " / " + target + " eggs", 4, 14, 1)
     banner.setFlag(SpriteFlag.RelativeToCamera, true)
     banner.x = 80
     banner.y = 60
@@ -817,7 +817,7 @@ function resetToTitle() {
     gameStarted = false
 
     info.stopCountdown()
-    effects.blizzard.endScreenEffect()
+    effects.confetti.endScreenEffect()
 
     sprites.destroyAllSpritesOfKind(SpriteKind.Player)
     sprites.destroyAllSpritesOfKind(SpriteKind.Food)

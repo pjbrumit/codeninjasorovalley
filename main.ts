@@ -238,7 +238,7 @@ function startLevel() {
 // ---------- SPAWN HELPERS ----------
 
 function findRandomPlatformSpawn(): tiles.Location {
-    for (let attempt = 0; attempt < 20; attempt++) {
+    for (let attempt = 0; attempt < 40; attempt++) {
         const col = randint(1, LEVEL_WIDTH - 2)
         const candidates: tiles.Location[] = []
 
@@ -257,6 +257,27 @@ function findRandomPlatformSpawn(): tiles.Location {
             return candidates[randint(0, candidates.length - 1)]
         }
     }
+
+    // fallback: scan every column in order
+    for (let col = 1; col <= LEVEL_WIDTH - 2; col++) {
+        const candidates: tiles.Location[] = []
+
+        for (let r = 1; r <= GROUND_ROW; r++) {
+            const belowLoc = tiles.getTileLocation(col, r)
+            const spawnLoc = tiles.getTileLocation(col, r - 1)
+
+            if (tiles.tileAtLocationIsWall(belowLoc)
+                && !tiles.tileAtLocationIsWall(spawnLoc)
+                && !isTreeTile(spawnLoc)) {
+                candidates.push(spawnLoc)
+            }
+        }
+
+        if (candidates.length > 0) {
+            return candidates[randint(0, candidates.length - 1)]
+        }
+    }
+
     return null
 }
 
@@ -581,7 +602,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Present, function (player, gift)
     banner.setFlag(SpriteFlag.RelativeToCamera, true)
     banner.x = 80
     banner.y = 60
-    banner.lifespan = 3000
+    banner.lifespan = 3200
 
     music.baDing.play()
     pause(3200)
@@ -670,7 +691,7 @@ function spawnSnowflakes(count: number) {
         flake.ay = ay
 
         flake.setFlag(SpriteFlag.GhostThroughWalls, false)
-        flake.setFlag(SpriteFlag.AutoDestroy, false)
+        flake.setFlag(SpriteFlag.AutoDestroy, true)
         flake.lifespan = 4000
     }
 }

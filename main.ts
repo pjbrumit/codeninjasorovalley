@@ -393,7 +393,6 @@ function spawnPresent() {
     tiles.placeOnTile(present, spawnLoc)
 
     present.ay = 400
-    present.setFlag(SpriteFlag.BounceOnWall, true)
     present.setFlag(SpriteFlag.GhostThroughWalls, false)
 }
 

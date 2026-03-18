@@ -1,6 +1,6 @@
 namespace SpriteKind {
-    export const Snow = SpriteKind.create()
-    export const Present = SpriteKind.create()
+    export const Butterfly = SpriteKind.create()
+    export const EasterEgg = SpriteKind.create()
     export const Hint = SpriteKind.create()
 }
 
@@ -116,50 +116,76 @@ const CANDY_TARGET_STEP = 15
 const TOTAL_TIME = 80
 const LEVEL_WIDTH = 32
 const GROUND_ROW = 15
-const MAX_CANDY = 10
+const MAX_EGGS = 10
 
-// shared snow image
-const snowImg = image.create(2, 2)
-snowImg.fill(1)
+// ---------- BUTTERFLY ART ----------
+// Two wing frames for a flapping animation — 8x6 sprites
+// Frame 1: wings up
+const butterflyA = img`
+    . 9 . . . . 9 .
+    9 9 7 . . 7 9 9
+    9 9 9 7 7 9 9 9
+    . 9 9 . . 9 9 .
+    . . 9 . . 9 . .
+    . . . d d . . .
+`
+// Frame 2: wings mid (slightly lower)
+const butterflyB = img`
+    . . . . . . . .
+    . 9 7 . . 7 9 .
+    9 9 9 7 7 9 9 9
+    9 9 9 . . 9 9 9
+    . . 9 . . 9 . .
+    . . . d d . . .
+`
+
+// Butterfly color variants — index maps to which color to tint
+// We'll just use different pre-colored frames for variety
+const butterflyColors = [
+    [9, 7],   // blue / yellow
+    [13, 5],  // pink / yellow
+    [10, 7],  // green / yellow
+    [8, 5],   // purple / yellow
+]
 
 // ---------- GLOBAL STATE ----------
 
-function requiredCandyForLevel(level: number) {
+function requiredEggsForLevel(level: number) {
     return CANDY_TARGET_BASE + level * CANDY_TARGET_STEP
 }
 
 let currentLevel = 0
-let levelCandyCollected = 0
-let totalCandyCollected = 0
+let levelEggsCollected = 0
+let totalEggsCollected = 0
 let isLevelTransition = false
 
 let titlePage = 0
 const TITLE_PAGE_COUNT = 3
-let treeLightsOn = false
+let flowerToggle = false
 
 let timeLeft = TOTAL_TIME
 let bg: Image = null
 let title: Image = null
 let mySprite: Sprite = null
 
-let candyCaneSmall: Image = null
+let eggSmall: Image = null
 
 let startLoc: tiles.Location = null
-let candyCount = 0
+let eggCount = 0
 let gameStarted = false
 
-// snow intensity
+// butterfly intensity
 let frac = 0
-let baseFlakes = 0
-let bonusFlakes = 0
-let totalFlakes = 0
+let baseButterflies = 0
+let bonusButterflies = 0
+let totalButterflies = 0
 let collected = 0
 
 // player animation state
 let facingLeft = false
 let isRunning = false
 
-let present: Sprite = null
+let bunny: Sprite = null
 
 // ---------- CONTROLS ----------
 
@@ -182,7 +208,7 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
 // ---------- GAME FLOW ----------
 
 function startGame() {
-    totalCandyCollected = 0
+    totalEggsCollected = 0
     currentLevel = 0
     gameStarted = true
     startLevel()
@@ -190,8 +216,8 @@ function startGame() {
 
 function startLevel() {
     // reset per-level counters
-    candyCount = 0
-    levelCandyCollected = 0
+    eggCount = 0
+    levelEggsCollected = 0
     timeLeft = TOTAL_TIME
     info.setScore(0)
     info.startCountdown(TOTAL_TIME)
@@ -203,12 +229,12 @@ function startLevel() {
         huntHintSprite = null
     }
 
-    // clear old candy + present
+    // clear old eggs + bunny
     sprites.destroyAllSpritesOfKind(SpriteKind.Food)
-    sprites.destroyAllSpritesOfKind(SpriteKind.Present)
-    present = null
+    sprites.destroyAllSpritesOfKind(SpriteKind.EasterEgg)
+    bunny = null
 
-    // background
+    // background — light spring sky
     bg = image.create(160, 120)
     bg.fill(9)
     scene.setBackgroundImage(bg)
@@ -251,7 +277,7 @@ function findRandomPlatformSpawn(): tiles.Location {
 
             if (tiles.tileAtLocationIsWall(belowLoc)
                 && !tiles.tileAtLocationIsWall(spawnLoc)
-                && !isTreeTile(spawnLoc)) {
+                && !isFlowerTile(spawnLoc)) {
                 candidates.push(spawnLoc)
             }
         }
@@ -271,7 +297,7 @@ function findRandomPlatformSpawn(): tiles.Location {
 
             if (tiles.tileAtLocationIsWall(belowLoc)
                 && !tiles.tileAtLocationIsWall(spawnLoc)
-                && !isTreeTile(spawnLoc)) {
+                && !isFlowerTile(spawnLoc)) {
                 candidates.push(spawnLoc)
             }
         }
@@ -284,22 +310,22 @@ function findRandomPlatformSpawn(): tiles.Location {
     return null
 }
 
-function spawnCandy() {
+function spawnEgg() {
     if (!gameStarted || isLevelTransition) return
-    if (candyCount >= MAX_CANDY) return
+    if (eggCount >= MAX_EGGS) return
 
     const loc = findRandomPlatformSpawn()
     if (!loc) return
 
-    const candy = sprites.create(candyCaneSmall, SpriteKind.Food)
-    tiles.placeOnTile(candy, loc)
-    candy.y -= 4
-    candyCount++
+    const egg = sprites.create(eggSmall, SpriteKind.Food)
+    tiles.placeOnTile(egg, loc)
+    egg.y -= 4
+    eggCount++
 }
 
-// ---------- PRESENT HINT & SPAWN ----------
+// ---------- BUNNY HINT & SPAWN ----------
 
-function showHuntPresentHint() {
+function showHuntBunnyHint() {
     if (huntHintSprite) {
         huntHintSprite.destroy()
         huntHintSprite = null
@@ -313,8 +339,8 @@ function showHuntPresentHint() {
     const h = 20
 
     const hintImg = image.create(w, h)
-    hintImg.fill(2)
-    hintImg.print(text, padding, 6, 7)
+    hintImg.fill(10)            // green banner — spring feel
+    hintImg.print(text, padding, 6, 1)
 
     huntHintSprite = sprites.create(hintImg, SpriteKind.Hint)
     huntHintSprite.setFlag(SpriteFlag.RelativeToCamera, true)
@@ -323,20 +349,20 @@ function showHuntPresentHint() {
     huntHintSprite.lifespan = 1500
 }
 
-function maybeSpawnPresent() {
+function maybeSpawnBunny() {
     if (!gameStarted || isLevelTransition) return
-    if (present) return
+    if (bunny) return
 
-    const target = requiredCandyForLevel(currentLevel)
-    if (levelCandyCollected < target) return
+    const target = requiredEggsForLevel(currentLevel)
+    if (levelEggsCollected < target) return
 
-    spawnPresent()
+    spawnBunny()
 }
 
-const MIN_PRESENT_DISTANCE_TILES = 3
-const MAX_PRESENT_DISTANCE_TILES = 10
+const MIN_BUNNY_DISTANCE_TILES = 3
+const MAX_BUNNY_DISTANCE_TILES = 10
 
-function findPlatformSpawnForPresent(): tiles.Location {
+function findPlatformSpawnForBunny(): tiles.Location {
     if (!mySprite) return findRandomPlatformSpawn()
 
     const pCol = Math.idiv(mySprite.x, 16)
@@ -344,8 +370,8 @@ function findPlatformSpawnForPresent(): tiles.Location {
 
     // Phase 1: near player, but not too close
     for (let attempt = 0; attempt < 60; attempt++) {
-        const leftCol = Math.max(1, pCol - MAX_PRESENT_DISTANCE_TILES)
-        const rightCol = Math.min(LEVEL_WIDTH - 2, pCol + MAX_PRESENT_DISTANCE_TILES)
+        const leftCol = Math.max(1, pCol - MAX_BUNNY_DISTANCE_TILES)
+        const rightCol = Math.min(LEVEL_WIDTH - 2, pCol + MAX_BUNNY_DISTANCE_TILES)
         const col = randint(leftCol, rightCol)
 
         const candidates: tiles.Location[] = []
@@ -356,13 +382,13 @@ function findPlatformSpawnForPresent(): tiles.Location {
 
             if (tiles.tileAtLocationIsWall(belowLoc)
                 && !tiles.tileAtLocationIsWall(spawnLoc)
-                && !isTreeTile(spawnLoc)) {
+                && !isFlowerTile(spawnLoc)) {
 
                 const spawnRow = r - 1
                 const tileDist =
                     Math.abs(col - pCol) + Math.abs(spawnRow - pRow)
 
-                if (tileDist >= MIN_PRESENT_DISTANCE_TILES) {
+                if (tileDist >= MIN_BUNNY_DISTANCE_TILES) {
                     candidates.push(spawnLoc)
                 }
             }
@@ -384,13 +410,13 @@ function findPlatformSpawnForPresent(): tiles.Location {
 
             if (tiles.tileAtLocationIsWall(belowLoc)
                 && !tiles.tileAtLocationIsWall(spawnLoc)
-                && !isTreeTile(spawnLoc)) {
+                && !isFlowerTile(spawnLoc)) {
 
                 const spawnRow = r - 1
                 const tileDist =
                     Math.abs(col - pCol) + Math.abs(spawnRow - pRow)
 
-                if (tileDist >= MIN_PRESENT_DISTANCE_TILES) {
+                if (tileDist >= MIN_BUNNY_DISTANCE_TILES) {
                     candidates.push(spawnLoc)
                 }
             }
@@ -404,20 +430,20 @@ function findPlatformSpawnForPresent(): tiles.Location {
     return findRandomPlatformSpawn()
 }
 
-function spawnPresent() {
-    if (present) {
-        present.destroy()
-        present = null
+function spawnBunny() {
+    if (bunny) {
+        bunny.destroy()
+        bunny = null
     }
 
-    const spawnLoc = findPlatformSpawnForPresent()
+    const spawnLoc = findPlatformSpawnForBunny()
     if (!spawnLoc) return
 
-    present = sprites.create(presentImg, SpriteKind.Present)
-    tiles.placeOnTile(present, spawnLoc)
+    bunny = sprites.create(bunnyImg, SpriteKind.EasterEgg)
+    tiles.placeOnTile(bunny, spawnLoc)
 
-    present.ay = 400
-    present.setFlag(SpriteFlag.GhostThroughWalls, false)
+    bunny.ay = 400
+    bunny.setFlag(SpriteFlag.GhostThroughWalls, false)
 }
 
 // ---------- TITLE SCREEN ----------
@@ -451,12 +477,12 @@ function printCenteredShadow(
 function showTitleScreen() {
     title = image.create(160, 120)
 
-    // background: deep blue with "snow"
-    title.fill(8)
+    // background: light spring sky with scattered butterflies
+    title.fill(9)
     for (let i = 0; i < 40; i++) {
         const sx = randint(0, 159)
         const sy = randint(0, 119)
-        title.setPixel(sx, sy, 1)
+        title.setPixel(sx, sy, 13)   // spring color dots
     }
 
     // big center sign
@@ -465,14 +491,14 @@ function showTitleScreen() {
     const signW = 128
     const signH = 56
 
-    title.fillRect(signX, signY, signW, signH, 1)
-    title.drawRect(signX, signY, signW, signH, 8)
+    title.fillRect(signX, signY, signW, signH, 10)   // spring green
+    title.drawRect(signX, signY, signW, signH, 7)    // white border
 
     // header text
-    printCenteredInBox(title, "CODE NINJAS", signY + 8, 8, signX, signW)
-    printCenteredInBox(title, "ORO VALLEY", signY + 20, 8, signX, signW)
-    printCenteredInBox(title, "EGG HUNT", signY + 32, 2, signX + 10, signW)
-    printCenteredInBox(title, "Play it. Hack it.", signY + 44, 9, signX + 15, signW)
+    printCenteredInBox(title, "CODE NINJAS", signY + 8, 7, signX, signW)
+    printCenteredInBox(title, "ORO VALLEY", signY + 20, 7, signX, signW)
+    printCenteredInBox(title, "EGG HUNT", signY + 32, 5, signX + 10, signW)
+    printCenteredInBox(title, "Play it. Hack it.", signY + 44, 1, signX + 15, signW)
 
     if (titlePage == 0) {
         // PAGE 1: controls + icons
@@ -484,20 +510,20 @@ function showTitleScreen() {
         const iconY = 90
         const paddingX = 6
 
-        // left: candy cane
-        const candyCardX = paddingX
-        if (candyCaneSmall) {
-            const cx = candyCardX + Math.idiv(iconW - candyCaneSmall.width, 2)
-            const cy = iconY + Math.idiv(iconH - candyCaneSmall.height, 2)
-            title.drawTransparentImage(candyCaneSmall, cx, cy)
+        // left: Easter egg
+        const eggCardX = paddingX
+        if (eggSmall) {
+            const cx = eggCardX + Math.idiv(iconW - eggSmall.width, 2)
+            const cy = iconY + Math.idiv(iconH - eggSmall.height, 2)
+            title.drawTransparentImage(eggSmall, cx, cy)
         }
 
-        // right: present
-        const presentCardX = 160 - iconW - paddingX
-        if (presentSmall) {
-            const px = presentCardX + Math.idiv(iconW - presentSmall.width, 2)
-            const py = iconY + Math.idiv(iconH - presentSmall.height, 2)
-            title.drawTransparentImage(presentSmall, px, py)
+        // right: bunny
+        const bunnyCardX = 160 - iconW - paddingX
+        if (bunnySmall) {
+            const px = bunnyCardX + Math.idiv(iconW - bunnySmall.width, 2)
+            const py = iconY + Math.idiv(iconH - bunnySmall.height, 2)
+            title.drawTransparentImage(bunnySmall, px, py)
         }
 
     } else if (titlePage == 1) {
@@ -512,7 +538,7 @@ function showTitleScreen() {
         printCenteredShadow(title, "VISIT US", 80, 1)
         printCenteredShadow(title, "codeninjas.com", 90, 1)
         printCenteredShadow(title, "/az-oro-valley", 100, 1)
-        printCenteredShadow(title, "Press A to play", 110, 2)
+        printCenteredShadow(title, "Press A to play", 110, 5)
     }
 
     scene.setBackgroundImage(title)
@@ -525,7 +551,7 @@ function finishGameWithTotal(fromTimer: boolean) {
     info.stopCountdown()
     effects.confetti.endScreenEffect()
 
-    const total = totalCandyCollected
+    const total = totalEggsCollected
     let header = fromTimer ? "Time's up!\n" : "Great job!\n"
 
     game.showLongText(
@@ -569,25 +595,25 @@ sprites.onOverlap(SpriteKind.Food, SpriteKind.Player, function (sprite, otherSpr
     sprite.destroy()
     info.changeScoreBy(1)
 
-    if (candyCount > 0) {
-        candyCount--
+    if (eggCount > 0) {
+        eggCount--
     }
 
-    levelCandyCollected++
-    totalCandyCollected++
+    levelEggsCollected++
+    totalEggsCollected++
 
-    const target = requiredCandyForLevel(currentLevel)
-    if (!huntHintShownThisLevel && levelCandyCollected >= target) {
+    const target = requiredEggsForLevel(currentLevel)
+    if (!huntHintShownThisLevel && levelEggsCollected >= target) {
         huntHintShownThisLevel = true
-        showHuntPresentHint()
+        showHuntBunnyHint()
     }
 
-    maybeSpawnPresent()
+    maybeSpawnBunny()
 })
 
-sprites.onOverlap(SpriteKind.Player, SpriteKind.Present, function (player, gift) {
+sprites.onOverlap(SpriteKind.Player, SpriteKind.EasterEgg, function (player, gift) {
     gift.destroy()
-    present = null
+    bunny = null
     isLevelTransition = true
 
     info.stopCountdown()
@@ -595,13 +621,13 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Present, function (player, gift)
     mySprite.vy = 0
 
     const levelNumber = currentLevel + 1
-    const target = requiredCandyForLevel(currentLevel)
-    const thisLevelCandy = levelCandyCollected
+    const target = requiredEggsForLevel(currentLevel)
+    const thisLevelEggs = levelEggsCollected
 
     const banner = sprites.create(image.create(140, 24), SpriteKind.Hint)
     banner.image.fill(0)
-    banner.image.print("Level " + levelNumber + " complete!", 4, 4, 1)
-    banner.image.print(thisLevelCandy + " / " + target + " eggs", 4, 14, 1)
+    banner.image.print("Level " + levelNumber + " complete!", 4, 4, 10)
+    banner.image.print(thisLevelEggs + " / " + target + " eggs", 4, 14, 13)
     banner.setFlag(SpriteFlag.RelativeToCamera, true)
     banner.x = 80
     banner.y = 60
@@ -620,7 +646,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.Present, function (player, gift)
     }
 })
 
-scene.onHitWall(SpriteKind.Snow, function (sprite, location) {
+scene.onHitWall(SpriteKind.Butterfly, function (sprite, location) {
     if (sprite.lifespan > 250) {
         sprite.lifespan = 250
     }
@@ -628,91 +654,94 @@ scene.onHitWall(SpriteKind.Snow, function (sprite, location) {
 
 // ---------- TILE HELPERS ----------
 
-function isTreeTile(loc: tiles.Location) {
-    return tiles.tileAtLocationEquals(loc, assets.tile`Tree`)
-        || tiles.tileAtLocationEquals(loc, assets.tile`Tree2`)
+function isFlowerTile(loc: tiles.Location) {
+    return tiles.tileAtLocationEquals(loc, assets.tile`Flower`)
+        || tiles.tileAtLocationEquals(loc, assets.tile`Flower2`)
 }
 
-// ---------- SNOW HELPERS ----------
+// ---------- BUTTERFLY HELPERS ----------
 
-function spawnSnowflakes(count: number) {
+function spawnButterflies(count: number) {
     const mapWidth = LEVEL_WIDTH * 16
     const mapHeight = (GROUND_ROW + 1) * 16
+    const camX = scene.cameraProperty(CameraProperty.X)
     const camY = scene.cameraProperty(CameraProperty.Y)
 
-    // simple cap to avoid too many snow sprites
-    const maxFlakes = 150
-    const existing = sprites.allOfKind(SpriteKind.Snow).length
-    if (existing >= maxFlakes) return
+    // Keep butterfly count gentle — max 30 on screen at once
+    const maxButterflies = 30
+    const existing = sprites.allOfKind(SpriteKind.Butterfly).length
+    if (existing >= maxButterflies) return
 
-    const toSpawn = Math.min(count, maxFlakes - existing)
+    const toSpawn = Math.min(count, maxButterflies - existing)
 
     for (let i = 0; i < toSpawn; i++) {
-        const flake = sprites.create(snowImg, SpriteKind.Snow)
+        // Pick a random color pair from our palette
+        const colorPair = butterflyColors[randint(0, 3)]
+        const wingColor = colorPair[0]
+        const bodyColor = colorPair[1]
 
-        flake.x = randint(0, mapWidth - 1)
+        // Build a colored frame A and frame B for this butterfly
+        const fA = butterflyA.clone()
+        const fB = butterflyB.clone()
 
-        const layer = randint(0, 3)
-        let yMin: number
-        let yMax: number
-        let vyMin: number
-        let vyMax: number
-        let ay: number
-
-        if (layer == 0) {
-            yMin = camY - 72
-            yMax = camY - 40
-            vyMin = 5
-            vyMax = 12
-            ay = 20
-        } else if (layer == 1) {
-            yMin = camY - 40
-            yMax = camY - 10
-            vyMin = 8
-            vyMax = 16
-            ay = 24
-        } else if (layer == 2) {
-            yMin = camY - 10
-            yMax = camY + 20
-            vyMin = 12
-            vyMax = 22
-            ay = 28
-        } else {
-            yMin = camY + 20
-            yMax = camY + 60
-            vyMin = 16
-            vyMax = 26
-            ay = 32
+        // Re-color: replace template colors (9=wing, 7=detail, d=body)
+        for (let px = 0; px < fA.width; px++) {
+            for (let py = 0; py < fA.height; py++) {
+                const c = fA.getPixel(px, py)
+                if (c == 9) { fA.setPixel(px, py, wingColor) }
+                else if (c == 7) { fA.setPixel(px, py, bodyColor) }
+            }
+        }
+        for (let px = 0; px < fB.width; px++) {
+            for (let py = 0; py < fB.height; py++) {
+                const c = fB.getPixel(px, py)
+                if (c == 9) { fB.setPixel(px, py, wingColor) }
+                else if (c == 7) { fB.setPixel(px, py, bodyColor) }
+            }
         }
 
-        let ySpawn = randint(yMin, yMax)
-        ySpawn = Math.max(0, Math.min(mapHeight - 1, ySpawn))
-        flake.y = ySpawn
+        // Spawn just off the left or right edge of the visible screen
+        const spawnFromLeft = Math.percentChance(50)
+        const butterfly = sprites.create(fA, SpriteKind.Butterfly)
 
-        flake.vx = randint(-20, 20)
-        flake.vy = randint(vyMin, vyMax)
-        flake.ay = ay
+        // Horizontal: enter from one side, drift gently across
+        if (spawnFromLeft) {
+            butterfly.x = camX - 80 + randint(-20, 0)
+            butterfly.vx = randint(18, 35)
+        } else {
+            butterfly.x = camX + 80 + randint(0, 20)
+            butterfly.vx = -randint(18, 35)
+        }
 
-        flake.setFlag(SpriteFlag.GhostThroughWalls, false)
-        flake.setFlag(SpriteFlag.AutoDestroy, true)
-        flake.lifespan = 4000
+        // Vertical: spread across the visible play area
+        butterfly.y = camY + randint(-50, 50)
+        // Gentle vertical bob — butterflies don't fall, they float
+        butterfly.vy = randint(-8, 8)
+        butterfly.ay = 0   // no gravity for butterflies
+
+        butterfly.setFlag(SpriteFlag.GhostThroughWalls, true)
+        butterfly.setFlag(SpriteFlag.AutoDestroy, true)
+        butterfly.lifespan = randint(5000, 9000)
+
+        // Wing-flap animation: alternate between frame A and B
+        animation.runImageAnimation(butterfly, [fA, fB], 180, true)
     }
 }
 
-// ---------- PRESENT AI ----------
+// ---------- BUNNY AI ----------
 
 game.onUpdate(function () {
-    if (!gameStarted || isLevelTransition || !present || !mySprite) return
+    if (!gameStarted || isLevelTransition || !bunny || !mySprite) return
 
-    const dx = present.x - mySprite.x
-    const dy = present.y - mySprite.y
+    const dx = bunny.x - mySprite.x
+    const dy = bunny.y - mySprite.y
 
     let dir = dx >= 0 ? 1 : -1
 
-    const colHere = Math.idiv(present.x, 16)
-    const rowHere = Math.idiv(present.y, 16)
+    const colHere = Math.idiv(bunny.x, 16)
+    const rowHere = Math.idiv(bunny.y, 16)
 
-    if (present.isHittingTile(CollisionDirection.Bottom)) {
+    if (bunny.isHittingTile(CollisionDirection.Bottom)) {
         let aheadCol = colHere + dir
 
         if (aheadCol < 1 || aheadCol > LEVEL_WIDTH - 2) {
@@ -731,7 +760,7 @@ game.onUpdate(function () {
                             currentLevel == 2 ? 60 : 85
 
                 if (Math.percentChance(jumpChance)) {
-                    present.vy = -220
+                    bunny.vy = -220
                 } else {
                     dir *= -1
                 }
@@ -744,7 +773,7 @@ game.onUpdate(function () {
                     vertDist < 32 &&
                     Math.percentChance(20 + currentLevel * 5)
                 ) {
-                    present.vy = -220
+                    bunny.vy = -220
                 }
             }
         }
@@ -756,16 +785,16 @@ game.onUpdate(function () {
                 currentLevel == 2 ? 110 : 140
 
     const targetVx = dir * runSpeed
-    present.vx += (targetVx - present.vx) * 0.25
+    bunny.vx += (targetVx - bunny.vx) * 0.25
 
     const minX = 8
     const maxX = LEVEL_WIDTH * 16 - 8
-    if (present.x < minX) {
-        present.x = minX
-        present.vx = Math.abs(present.vx)
-    } else if (present.x > maxX) {
-        present.x = maxX
-        present.vx = -Math.abs(present.vx)
+    if (bunny.x < minX) {
+        bunny.x = minX
+        bunny.vx = Math.abs(bunny.vx)
+    } else if (bunny.x > maxX) {
+        bunny.x = maxX
+        bunny.vx = -Math.abs(bunny.vx)
     }
 })
 
@@ -778,7 +807,6 @@ game.onUpdate(function () {
     const moving = Math.abs(speed) > 10
     const grounded = mySprite.isHittingTile(CollisionDirection.Bottom)
 
-    // decide facing based on movement
     let wantFacingLeft = facingLeft
     if (speed > 5) {
         wantFacingLeft = false
@@ -789,7 +817,6 @@ game.onUpdate(function () {
     const wantRun = moving && grounded
 
     if (wantRun) {
-        // if we weren't running or changed direction, restart anim
         if (!isRunning || wantFacingLeft != facingLeft) {
             isRunning = true
             facingLeft = wantFacingLeft
@@ -801,7 +828,6 @@ game.onUpdate(function () {
             )
         }
     } else {
-        // go to idle
         if (isRunning) {
             animation.stopAnimation(animation.AnimationTypes.All, mySprite)
             isRunning = false
@@ -821,17 +847,17 @@ function resetToTitle() {
 
     sprites.destroyAllSpritesOfKind(SpriteKind.Player)
     sprites.destroyAllSpritesOfKind(SpriteKind.Food)
-    sprites.destroyAllSpritesOfKind(SpriteKind.Snow)
-    sprites.destroyAllSpritesOfKind(SpriteKind.Present)
+    sprites.destroyAllSpritesOfKind(SpriteKind.Butterfly)
+    sprites.destroyAllSpritesOfKind(SpriteKind.EasterEgg)
     sprites.destroyAllSpritesOfKind(SpriteKind.Hint)
     tiles.setCurrentTilemap(tilemap`titleScreen`)
 
     mySprite = null
-    present = null
-    candyCount = 0
+    bunny = null
+    eggCount = 0
     timeLeft = TOTAL_TIME
-    totalCandyCollected = 0
-    levelCandyCollected = 0
+    totalEggsCollected = 0
+    levelEggsCollected = 0
     currentLevel = 0
     info.setScore(0)
 
@@ -842,113 +868,104 @@ function resetToTitle() {
     showTitleScreen()
 }
 
-// ---------- ART: CANDY / PRESENT ----------
+// ---------- ART: EASTER EGG / BUNNY ----------
 
-const candyCaneBig = img`
+// Easter egg — colorful oval with stripe decoration
+const eggBig = img`
     ......................... 
-    .......1112221........... 
-    ......111222111.......... 
-    ......1112221111......... 
-    .....22112211122......... 
-    .....2221...1222......... 
-    .....2222...2222......... 
-    .....1122...2221......... 
-    .....1111...2211......... 
-    ......11....2111......... 
-    .........7771112777...... 
-    ........777771277777..... 
-    ........77.777777.77..... 
-    ........777.7447.777..... 
-    .........7777777777...... 
-    ..........77721777....... 
-    ........777721117777..... 
-    .......7777.1111.7777.... 
-    .......277..1112..772.... 
-    ........27..1122..72..... 
-    ............1222......... 
-    ............2222......... 
-    ............2221......... 
-    ............2211......... 
+    .........5555555......... 
+    .......555555555555...... 
+    ......55555555555555..... 
+    .....5555555555555555.... 
+    .....5555bbb555bbb555.... 
+    .....555bbbbb5bbbbb55.... 
+    .....5555bbb555bbb555.... 
+    .....5555555555555555.... 
+    ......55577777777555..... 
+    .......555777777555...... 
+    ........55555555555...... 
+    ..........555555......... 
     ......................... 
 `
-candyCaneSmall = candyCaneBig.clone()
+eggSmall = eggBig.clone()
 
-const presentImg = img`
+// Easter Bunny — white bunny with pink ears
+const bunnyImg = img`
+    ................................
+    ................................
+    ............1.....1.............
+    ...........111...111............
+    ...........1f1...1f1............
+    ...........111...111............
+    ..........11111111111...........
+    .........1111111111111..........
+    .........111111111111...........
+    .........111fff1fff111..........
+    .........11111111111111.........
+    .........1111111111111..........
+    ..........111d1d1d111...........
+    ...........11111111111..........
+    ............11111111............
+    .........11111...111111.........
+    ........1111.......11111........
     ................................
     ................................
     ................................
     ................................
     ................................
-    ........7777777777777777........
-    ........7....777777....7........
-    ........7....777777....7........
-    ........777777.77.777777........
-    .....2222222222772222222222.....
-    .....ffffffffff77ffffffffff.....
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......f221122117711221122f......
-    ......fffffffff77fffffffff......
+    ................................
+    ................................
+    ................................
+    ................................
+    ................................
+    ................................
     ................................
     ................................
     ................................
     ................................
 `
-const presentSmall = presentImg.clone()
+const bunnySmall = bunnyImg.clone()
 
 // ---------- BOOT ----------
 
 resetToTitle()
 isLevelTransition = false
 
-// single 500 ms interval for candy, trees, and snow
+// single 500 ms interval for eggs, flowers, and butterflies
 game.onUpdateInterval(500, function () {
-    // spawn candy (only during gameplay, see function guards)
-    spawnCandy()
+    // spawn Easter eggs (only during gameplay)
+    spawnEgg()
 
     if (!gameStarted) return
 
-    // retry present spawn if it should exist but hasn't been created yet
-    maybeSpawnPresent()
+    // retry bunny spawn if target reached but bunny not yet created
+    maybeSpawnBunny()
 
-    // blink tree lights
-    treeLightsOn = !treeLightsOn
-    if (treeLightsOn) {
-        for (let loc of tiles.getTilesByType(assets.tile`Tree`)) {
-            tiles.setTileAt(loc, assets.tile`Tree2`)
+    // blink spring flowers
+    flowerToggle = !flowerToggle
+    if (flowerToggle) {
+        for (let loc of tiles.getTilesByType(assets.tile`Flower`)) {
+            tiles.setTileAt(loc, assets.tile`Flower2`)
         }
     } else {
-        for (let loc of tiles.getTilesByType(assets.tile`Tree2`)) {
-            tiles.setTileAt(loc, assets.tile`Tree`)
+        for (let loc of tiles.getTilesByType(assets.tile`Flower2`)) {
+            tiles.setTileAt(loc, assets.tile`Flower`)
         }
     }
 
-    // update snow intensity
+    // update butterfly count — stays gentle throughout, small bonus for eggs collected
     frac = info.countdown() / TOTAL_TIME
     if (frac > 0.66) {
-        baseFlakes = 14
+        baseButterflies = 1
     } else if (frac > 0.33) {
-        baseFlakes = 28
+        baseButterflies = 2
     } else {
-        baseFlakes = 56
+        baseButterflies = 3
     }
 
     collected = info.score()
-    bonusFlakes = Math.min(30, Math.idiv(collected, 3))
-    totalFlakes = baseFlakes + bonusFlakes
+    bonusButterflies = Math.min(3, Math.idiv(collected, 15))
+    totalButterflies = baseButterflies + bonusButterflies
 
-    spawnSnowflakes(totalFlakes)
+    spawnButterflies(totalButterflies)
 })

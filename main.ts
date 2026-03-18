@@ -10,12 +10,12 @@ let huntHintSprite: Sprite = null
 // ---------- PLAYER ART ----------
 
 const playerIdle = img`
-    . . . . . . . . . . . . . . . .
-    . . . . . . . 1 . . . . . . . .
-    . . . . . . 2 2 2 2 . . . . . .
-    . . . . . 2 2 2 2 2 2 . . . . .
-    . . . . 2 2 2 2 2 2 2 2 . . . .
-    . . . 1 1 1 1 1 1 1 1 1 1 . . .
+    . . . . . . f f . . . . f f . .
+    . . . . . f 1 1 f . f 1 1 1 f .
+    . . . . . f 3 3 f f 1 3 3 1 f .
+    . . . . . f 3 3 f . f 1 3 1 f .
+    . . . . . f 1 1 f f 1 1 f . . .
+    . . . f f f f f f f f f f . . .
     . . f f f f f f f f f f f f . .
     . . f f d d d d d d d d f f . .
     . . f d d f d d d f d d d f . .
@@ -27,59 +27,62 @@ const playerIdle = img`
     . . . f f . . . . . . f f . . .
     . . . . . . . . . . . . . . . .
 `
+
 const playerRun1 = img`
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . 1 . . . . . . . . 
-    . . . . . . 2 2 2 2 . . . . . . 
-    . . . . . 2 2 2 2 2 2 . . . . . 
-    . . . . 2 2 2 2 2 2 2 2 . . . . 
-    . . . 1 1 1 1 1 1 1 1 1 1 . . . 
-    . . f f f f f f f f f f f f . . 
-    . . f f d d d d d d d d f f . . 
-    . . f d d f d d d f d d d f . . 
-    . . f f d d d d d d d d f f . . 
-    . . . f f f f f f f f f f . . . 
-    . . f f 8 8 8 8 8 8 8 8 f f . . 
-    . . f f f f f f f f f f f f . . 
-    . . . f f f . . . . f f . . . . 
-    . . . . f f . . . . . f f . . . 
-    . . . . . . . . . . . . . . . . 
+    . . . . . . f f . . . . f f . .
+    . . . . . f 1 1 f . f 1 1 1 f .
+    . . . . . f 3 3 f f 1 3 3 1 f .
+    . . . . . f 3 3 f . f 1 3 1 f .
+    . . . . . f 1 1 f f 1 1 f . . .
+    . . . f f f f f f f f f f . . .
+    . . f f f f f f f f f f f f . .
+    . . f f d d d d d d d d f f . .
+    . . f d d f d d d f d d d f . .
+    . . f f d d d d d d d d f f . .
+    . . . f f f f f f f f f f . . .
+    . . f f 8 8 8 8 8 8 8 8 f f . .
+    . . f f f f f f f f f f f f . .
+    . . . f f f . . . . f f . . . .
+    . . . . f f . . . . . f f . . .
+    . . . . . . . . . . . . . . . .
 `
+
 const playerRun2 = img`
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . 1 . . . . . . . . 
-    . . . . . . 2 2 2 2 . . . . . . 
-    . . . . . 2 2 2 2 2 2 . . . . . 
-    . . . . 2 2 2 2 2 2 2 2 . . . . 
-    . . . 1 1 1 1 1 1 1 1 1 1 . . . 
-    . . f f f f f f f f f f f f . . 
-    . . f f d d d d d d d d f f . . 
-    . . f d d f d d d f d d d f . . 
-    . . f f d d d d d d d d f f . . 
-    . . . f f f f f f f f f f . . . 
-    . . f f 8 8 8 8 8 8 8 8 f f . . 
-    . . f f f f f f f f f f f f . . 
-    . . . f f f . . . . f f f . . . 
-    . . . f f . . . . . . f f . . . 
-    . . . . . . . . . . . . . . . . 
+    . . . . . . f f . . . . f f . .
+    . . . . . f 1 1 f . f 1 1 1 f .
+    . . . . . f 3 3 f f 1 3 3 1 f .
+    . . . . . f 3 3 f . f 1 3 1 f .
+    . . . . . f 1 1 f f 1 1 f . . .
+    . . . f f f f f f f f f f . . .
+    . . f f f f f f f f f f f f . .
+    . . f f d d d d d d d d f f . .
+    . . f d d f d d d f d d d f . .
+    . . f f d d d d d d d d f f . .
+    . . . f f f f f f f f f f . . .
+    . . f f 8 8 8 8 8 8 8 8 f f . .
+    . . f f f f f f f f f f f f . .
+    . . . f f f . . . . f f f . . .
+    . . . f f . . . . . . f f . . .
+    . . . . . . . . . . . . . . . .
 `
+
 const playerRun3 = img`
-    . . . . . . . . . . . . . . . . 
-    . . . . . . . 1 . . . . . . . . 
-    . . . . . . 2 2 2 2 . . . . . . 
-    . . . . . 2 2 2 2 2 2 . . . . . 
-    . . . . 2 2 2 2 2 2 2 2 . . . . 
-    . . . 1 1 1 1 1 1 1 1 1 1 . . . 
-    . . f f f f f f f f f f f f . . 
-    . . f f d d d d d d d d f f . . 
-    . . f d d f d d d f d d d f . . 
-    . . f f d d d d d d d d f f . . 
-    . . . f f f f f f f f f f . . . 
-    . . f f 8 8 8 8 8 8 8 8 f f . . 
-    . . f f f f f f f f f f f f . . 
-    . . . . f f f . . . . f f f . . 
-    . . . . f f . . . . . . f f . . 
-    . . . . . . . . . . . . . . . . 
+    . . . . . . f f . . . . f f . .
+    . . . . . f 1 1 f . f 1 1 1 f .
+    . . . . . f 3 3 f f 1 3 3 1 f .
+    . . . . . f 3 3 f . f 1 3 1 f .
+    . . . . . f 1 1 f f 1 1 f . . .
+    . . . f f f f f f f f f f . . .
+    . . f f f f f f f f f f f f . .
+    . . f f d d d d d d d d f f . .
+    . . f d d f d d d f d d d f . .
+    . . f f d d d d d d d d f f . .
+    . . . f f f f f f f f f f . . .
+    . . f f 8 8 8 8 8 8 8 8 f f . .
+    . . f f f f f f f f f f f f . .
+    . . . . f f f . . . . f f f . .
+    . . . . f f . . . . . . f f . .
+    . . . . . . . . . . . . . . . .
 `
 
 // Right-facing versions (original art is looking LEFT)

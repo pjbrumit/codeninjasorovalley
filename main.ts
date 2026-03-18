@@ -914,11 +914,7 @@ game.onUpdateInterval(500, function () {
     }
 
     // update snow intensity
-    if (timeLeft > 0) {
-        timeLeft--
-    }
-
-    frac = timeLeft / TOTAL_TIME
+    frac = info.countdown() / TOTAL_TIME
     if (frac > 0.66) {
         baseFlakes = 14
     } else if (frac > 0.33) {

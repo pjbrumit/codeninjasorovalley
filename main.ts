@@ -851,7 +851,7 @@ const candyCaneBig = img`
     ............2211......... 
     ......................... 
 `
-candyCaneSmall = candyCaneBig
+candyCaneSmall = candyCaneBig.clone()
 
 const presentImg = img`
     ................................
@@ -887,7 +887,7 @@ const presentImg = img`
     ................................
     ................................
 `
-const presentSmall = presentImg
+const presentSmall = presentImg.clone()
 
 // ---------- BOOT ----------
 

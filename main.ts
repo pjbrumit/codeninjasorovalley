@@ -732,10 +732,7 @@ game.onUpdate(function () {
                 currentLevel == 2 ? 110 : 140
 
     const targetVx = dir * runSpeed
-    const accel = 20
-
-    if (present.vx < targetVx) present.vx += accel
-    if (present.vx > targetVx) present.vx -= accel
+    present.vx += (targetVx - present.vx) * 0.25
 
     const minX = 8
     const maxX = LEVEL_WIDTH * 16 - 8

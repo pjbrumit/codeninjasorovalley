@@ -34,16 +34,16 @@ const playerRun1 = img`
     . . . . 1 2 . . . . 1 2 . . . .
     . . . . 1 2 . . . . 1 2 . . . .
     . . . . 1 2 . . . . 1 2 . . . .
-    . . f f f f f f f f f f f f . . 
-    . . f f d d d d d d d d f f . . 
-    . . f d d f d d d f d d d f . . 
-    . . f f d d d d d d d d f f . . 
-    . . . f f f f f f f f f f . . . 
-    . . f f 8 8 8 8 8 8 8 8 f f . . 
-    . . f f f f f f f f f f f f . . 
-    . . . f f f . . . . f f . . . . 
-    . . . . f f . . . . . f f . . . 
-    . . . . . . . . . . . . . . . . 
+    . . f f f f f f f f f f f f . .
+    . . f f d d d d d d d d f f . .
+    . . f d d f d d d f d d d f . .
+    . . f f d d d d d d d d f f . .
+    . . . f f f f f f f f f f . . .
+    . . f f 8 8 8 8 8 8 8 8 f f . .
+    . . f f f f f f f f f f f f . .
+    . . . f f f . . . . f f . . . .
+    . . . . f f . . . . . f f . . .
+    . . . . . . . . . . . . . . . .
 `
 const playerRun2 = img`
     . . . . . . . . . . . . . . . .
@@ -52,16 +52,16 @@ const playerRun2 = img`
     . . . . 1 2 . . . . 1 2 . . . .
     . . . . 1 2 . . . . 1 2 . . . .
     . . . . 1 2 . . . . 1 2 . . . .
-    . . f f f f f f f f f f f f . . 
-    . . f f d d d d d d d d f f . . 
-    . . f d d f d d d f d d d f . . 
-    . . f f d d d d d d d d f f . . 
-    . . . f f f f f f f f f f . . . 
-    . . f f 8 8 8 8 8 8 8 8 f f . . 
-    . . f f f f f f f f f f f f . . 
-    . . . f f f . . . . f f f . . . 
-    . . . f f . . . . . . f f . . . 
-    . . . . . . . . . . . . . . . . 
+    . . f f f f f f f f f f f f . .
+    . . f f d d d d d d d d f f . .
+    . . f d d f d d d f d d d f . .
+    . . f f d d d d d d d d f f . .
+    . . . f f f f f f f f f f . . .
+    . . f f 8 8 8 8 8 8 8 8 f f . .
+    . . f f f f f f f f f f f f . .
+    . . . f f f . . . . f f f . . .
+    . . . f f . . . . . . f f . . .
+    . . . . . . . . . . . . . . . .
 `
 const playerRun3 = img`
     . . . . . . . . . . . . . . . .

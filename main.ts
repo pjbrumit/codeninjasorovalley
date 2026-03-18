@@ -241,7 +241,6 @@ function startLevel() {
 
     // load tilemap
     tiles.setCurrentTilemap(LEVEL_TILEMAPS[currentLevel])
-    effects.confetti.startScreenEffect()
 
     // create player once, reuse later
     if (!mySprite) {
@@ -444,6 +443,9 @@ function spawnBunny() {
 
     bunny.ay = 400
     bunny.setFlag(SpriteFlag.GhostThroughWalls, false)
+
+    // confetti only while the bunny is on the loose!
+    effects.confetti.startScreenEffect()
 }
 
 // ---------- TITLE SCREEN ----------
@@ -616,6 +618,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.EasterEgg, function (player, gif
     bunny = null
     isLevelTransition = true
 
+    effects.confetti.endScreenEffect()   // bunny caught — confetti stops
     info.stopCountdown()
     mySprite.vx = 0
     mySprite.vy = 0

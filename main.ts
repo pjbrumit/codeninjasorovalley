@@ -340,7 +340,8 @@ function spawnEgg() {
     const loc = findRandomPlatformSpawn()
     if (!loc) return
 
-    const egg = sprites.create(eggSmall, SpriteKind.Food)
+    const variant = EGG_VARIANTS[randint(0, EGG_VARIANTS.length - 1)]
+    const egg = sprites.create(makeEggImage(variant[0], variant[1]), SpriteKind.Food)
     tiles.placeOnTile(egg, loc)
     egg.y -= 4
     eggCount++
@@ -926,6 +927,34 @@ const eggBig = img`
     . . . . . f f f f f f . . . . .
 `
 eggSmall = eggBig.clone()
+
+// Egg color variants: [mainColor, stripeColor]
+// mainColor replaces the orange body (palette index 4)
+// stripeColor replaces the brown band (palette index 13)
+// outline (f=black) and highlights (1=white) always stay
+const EGG_VARIANTS: number[][] = [
+    [4,  13],  // original orange / brown
+    [3,  10],  // pink / purple
+    [9,   8],  // sky blue / dark blue
+    [7,   6],  // green / teal
+    [5,   4],  // yellow / orange
+    [10,  8],  // purple / dark blue
+    [2,  12],  // red / dark grey
+    [6,   8],  // teal / dark blue
+    [11, 10],  // lavender / purple
+]
+
+function makeEggImage(mainColor: number, stripeColor: number): Image {
+    const img = eggBig.clone()
+    for (let x = 0; x < img.width; x++) {
+        for (let y = 0; y < img.height; y++) {
+            const c = img.getPixel(x, y)
+            if (c == 4)  img.setPixel(x, y, mainColor)
+            else if (c == 13) img.setPixel(x, y, stripeColor)
+        }
+    }
+    return img
+}
 
 // Easter Bunny — white bunny with pink ears
 const bunnyImg = img`

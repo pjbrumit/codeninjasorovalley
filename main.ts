@@ -739,7 +739,7 @@ function spawnButterflies(count: number) {
     const camY = scene.cameraProperty(CameraProperty.Y)
 
     // Keep butterfly count gentle — max 30 on screen at once
-    const maxButterflies = 30
+    const maxButterflies = 18
     const existing = sprites.allOfKind(SpriteKind.Butterfly).length
     if (existing >= maxButterflies) return
 

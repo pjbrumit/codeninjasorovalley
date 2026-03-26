@@ -10,30 +10,30 @@ let huntHintSprite: Sprite = null
 // ---------- PLAYER ART ----------
 
 const playerIdle = img`
-    . . . . . . f f . . . . f f . .
-    . . . . . f 1 1 f . f 1 1 1 f .
-    . . . . . f 3 3 f f 1 3 3 1 f .
-    . . . . . f 3 3 f . f 1 3 1 f .
-    . . . . . f 1 1 f f 1 1 f . . .
+    . . . . . f f . . . f f . . . .
+    . . . . f 1 1 f . f 1 1 f . . .
+    . . . . f 3 1 f . f 1 3 f . . .
+    . . . . f 3 1 f . f 1 3 f . . .
+    . . . . f 3 1 f . f 1 3 f . . .
     . . . f f f f f f f f f f . . .
     . . f f f f f f f f f f f f . .
-    . . f f d d d d d d d d f f . .
-    . . f d d f d d d f d d d f . .
+    . f f f d d d d d d d d f f f .
+    . f f d d f d d d f d d d f f .
     . . f f d d d d d d d d f f . .
     . . . f f f f f f f f f f . . .
     . . f f 8 8 8 8 8 8 8 8 f f . .
     . . f f f f f f f f f f f f . .
     . . . f f f . . . . f f f . . .
-    . . . f f . . . . . . f f . . .
+    . . f f f . . . . . . f f f . .
     . . . . . . . . . . . . . . . .
 `
 
 const playerRun1 = img`
-    . . . . . . f f . . . . f f . .
-    . . . . . f 1 1 f . f 1 1 1 f .
-    . . . . . f 3 3 f f 1 3 3 1 f .
-    . . . . . f 3 3 f . f 1 3 1 f .
-    . . . . . f 1 1 f f 1 1 f . . .
+    . . . . . f f . . . . . f f . .
+    . . . . f 1 1 f . . . f 1 1 f .
+    . . . . f 1 3 f . . f 1 3 1 f .
+    . . . . f 1 3 f . f 1 3 1 f . .
+    . . . . f 1 3 f . f 3 1 f . . .
     . . . f f f f f f f f f f . . .
     . . f f f f f f f f f f f f . .
     . . f f d d d d d d d d f f . .
@@ -48,11 +48,11 @@ const playerRun1 = img`
 `
 
 const playerRun2 = img`
-    . . . . . . f f . . . . f f . .
-    . . . . . f 1 1 f . f 1 1 1 f .
-    . . . . . f 3 3 f f 1 3 3 1 f .
-    . . . . . f 3 3 f . f 1 3 1 f .
-    . . . . . f 1 1 f f 1 1 f . . .
+    . . . . . f f . . . . . f f . .
+    . . . . f 1 1 f . . . f 1 1 f .
+    . . . . f 1 3 f . . f 1 3 1 f .
+    . . . . f 1 3 f . f 1 3 1 f . .
+    . . . . f 1 3 f . f 3 1 f . . .
     . . . f f f f f f f f f f . . .
     . . f f f f f f f f f f f f . .
     . . f f d d d d d d d d f f . .
@@ -67,11 +67,11 @@ const playerRun2 = img`
 `
 
 const playerRun3 = img`
-    . . . . . . f f . . . . f f . .
-    . . . . . f 1 1 f . f 1 1 1 f .
-    . . . . . f 3 3 f f 1 3 3 1 f .
-    . . . . . f 3 3 f . f 1 3 1 f .
-    . . . . . f 1 1 f f 1 1 f . . .
+    . . . . . f f . . . . . f f . .
+    . . . . f 1 1 f . . . f 1 1 f .
+    . . . . f 1 3 f . . f 1 3 1 f .
+    . . . . f 1 3 f . f 1 3 1 f . .
+    . . . . f 1 3 f . f 3 1 f . . .
     . . . f f f f f f f f f f . . .
     . . f f f f f f f f f f f f . .
     . . f f d d d d d d d d f f . .
@@ -122,21 +122,41 @@ const MAX_EGGS = 10
 // Two wing frames for a flapping animation — 8x6 sprites
 // Frame 1: wings up
 const butterflyA = img`
-    . 9 . . . . 9 .
-    9 9 7 . . 7 9 9
-    9 9 9 7 7 9 9 9
-    . 9 9 . . 9 9 .
-    . . 9 . . 9 . .
-    . . . d d . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . e . e . . . . . . .
+    . . f f f . e e e . f f f . . .
+    . . f a 3 f . e . f 3 a f . . .
+    . . f 3 1 3 f e f 3 1 3 f . . .
+    . . f 3 3 a 3 e 3 a 3 3 f . . .
+    . . . f 3 3 1 e 1 3 3 f . . . .
+    . . . . f f 3 e 3 f f . . . . .
+    . . . f 3 a 3 e 3 a 3 f . . . .
+    . . . f a 3 f e f 3 a f . . . .
+    . . . . f f . e . f f . . . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . . . . . . . . . . .
 `
 // Frame 2: wings mid (slightly lower)
 const butterflyB = img`
-    . . . . . . . .
-    . 9 7 . . 7 9 .
-    9 9 9 7 7 9 9 9
-    9 9 9 . . 9 9 9
-    . . 9 . . 9 . .
-    . . . d d . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . e . e . . . . . . .
+    . . . . f . e e e . f . . . . .
+    . . . . f f . e . f f . . . . .
+    . . . . f 3 f e f 3 f . . . . .
+    . . . . f a 3 e 3 a f . . . . .
+    . . . . f 3 1 e 1 3 f . . . . .
+    . . . . f f 3 e 3 f f . . . . .
+    . . . . f a 3 e 3 a f . . . . .
+    . . . . f 3 f e f 3 f . . . . .
+    . . . . f f . e . f f . . . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . . . . . . . . . . .
+    . . . . . . . . . . . . . . . .
 `
 
 // Butterfly color variants — index maps to which color to tint

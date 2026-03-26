@@ -512,6 +512,29 @@ function showTitleScreen() {
         title.setPixel(sx, sy, 13)   // spring color dots
     }
 
+    // scatter butterflies behind the sign and text
+    for (let b = 0; b < 10; b++) {
+        let wingColor: number
+        let accentColor: number
+        if (Math.percentChance(35)) {
+            const pair = BUTTERFLY_FIXED[randint(0, BUTTERFLY_FIXED.length - 1)]
+            wingColor = pair[0]
+            accentColor = pair[1]
+        } else {
+            wingColor = BUTTERFLY_VIVID_WINGS[randint(0, BUTTERFLY_VIVID_WINGS.length - 1)]
+            accentColor = Math.percentChance(50) ? 1 : 14
+        }
+        const bfly = butterflyA.clone()
+        for (let px = 0; px < bfly.width; px++) {
+            for (let py = 0; py < bfly.height; py++) {
+                const c = bfly.getPixel(px, py)
+                if (c == 3) bfly.setPixel(px, py, wingColor)
+                else if (c == 10) bfly.setPixel(px, py, accentColor)
+            }
+        }
+        title.drawTransparentImage(bfly, randint(0, 144), randint(0, 104))
+    }
+
     // big center sign
     const signX = 16
     const signY = 18

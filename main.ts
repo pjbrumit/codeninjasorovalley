@@ -210,6 +210,7 @@ let facingLeft = false
 let isRunning = false
 
 let bunny: Sprite = null
+let titleSignSprite: Sprite = null
 
 // ---------- CONTROLS ----------
 
@@ -252,6 +253,13 @@ function startLevel() {
         huntHintSprite.destroy()
         huntHintSprite = null
     }
+
+    // clear title screen sprites
+    if (titleSignSprite) {
+        titleSignSprite.destroy()
+        titleSignSprite = null
+    }
+    sprites.destroyAllSpritesOfKind(SpriteKind.Butterfly)
 
     // clear old eggs + bunny
     sprites.destroyAllSpritesOfKind(SpriteKind.Food)
@@ -502,96 +510,113 @@ function printCenteredShadow(
 }
 
 function showTitleScreen() {
+    // Sky background only — sign and butterflies are sprites
     title = image.create(160, 120)
-
-    // background: light spring sky with scattered butterflies
     title.fill(9)
     for (let i = 0; i < 40; i++) {
-        const sx = randint(0, 159)
-        const sy = randint(0, 119)
-        title.setPixel(sx, sy, 13)   // spring color dots
+        title.setPixel(randint(0, 159), randint(0, 119), 13)
     }
+    scene.setBackgroundImage(title)
 
-    // scatter butterflies behind the sign and text
-    for (let b = 0; b < 10; b++) {
-        let wingColor: number
-        let accentColor: number
-        if (Math.percentChance(35)) {
-            const pair = BUTTERFLY_FIXED[randint(0, BUTTERFLY_FIXED.length - 1)]
-            wingColor = pair[0]
-            accentColor = pair[1]
-        } else {
-            wingColor = BUTTERFLY_VIVID_WINGS[randint(0, BUTTERFLY_VIVID_WINGS.length - 1)]
-            accentColor = Math.percentChance(50) ? 1 : 14
-        }
-        const bfly = butterflyA.clone()
-        for (let px = 0; px < bfly.width; px++) {
-            for (let py = 0; py < bfly.height; py++) {
-                const c = bfly.getPixel(px, py)
-                if (c == 3) bfly.setPixel(px, py, wingColor)
-                else if (c == 10) bfly.setPixel(px, py, accentColor)
+    // Spawn butterflies only once — they keep floating across page changes
+    if (sprites.allOfKind(SpriteKind.Butterfly).length == 0) {
+        for (let b = 0; b < 8; b++) {
+            let wingColor: number
+            let accentColor: number
+            if (Math.percentChance(35)) {
+                const pair = BUTTERFLY_FIXED[randint(0, BUTTERFLY_FIXED.length - 1)]
+                wingColor = pair[0]
+                accentColor = pair[1]
+            } else {
+                wingColor = BUTTERFLY_VIVID_WINGS[randint(0, BUTTERFLY_VIVID_WINGS.length - 1)]
+                accentColor = Math.percentChance(50) ? 1 : 14
             }
+            const fA = butterflyA.clone()
+            const fB = butterflyB.clone()
+            for (let px = 0; px < fA.width; px++) {
+                for (let py = 0; py < fA.height; py++) {
+                    const c = fA.getPixel(px, py)
+                    if (c == 3) fA.setPixel(px, py, wingColor)
+                    else if (c == 10) fA.setPixel(px, py, accentColor)
+                }
+            }
+            for (let px = 0; px < fB.width; px++) {
+                for (let py = 0; py < fB.height; py++) {
+                    const c = fB.getPixel(px, py)
+                    if (c == 3) fB.setPixel(px, py, wingColor)
+                    else if (c == 10) fB.setPixel(px, py, accentColor)
+                }
+            }
+            const tb = sprites.create(fA, SpriteKind.Butterfly)
+            tb.x = randint(8, 152)
+            tb.y = randint(8, 112)
+            tb.vx = (Math.percentChance(50) ? 1 : -1) * randint(12, 22)
+            tb.vy = randint(-6, 6)
+            tb.ay = 0
+            tb.z = 0
+            tb.setFlag(SpriteFlag.GhostThroughWalls, true)
+            tb.setFlag(SpriteFlag.AutoDestroy, false)
+            tb.lifespan = 25000
+            animation.runImageAnimation(tb, [fA, fB], 200, true)
         }
-        title.drawTransparentImage(bfly, randint(0, 144), randint(0, 104))
     }
 
-    // big center sign
+    // Rebuild sign sprite on every call (page may have changed)
+    if (titleSignSprite) {
+        titleSignSprite.destroy()
+        titleSignSprite = null
+    }
+    const signImg = image.create(160, 120)
     const signX = 16
     const signY = 18
     const signW = 128
     const signH = 56
 
-    title.fillRect(signX, signY, signW, signH, 10)   // spring green
-    title.drawRect(signX, signY, signW, signH, 7)    // white border
-
-    // header text
-    printCenteredInBox(title, "CODE NINJAS", signY + 8, 7, signX, signW)
-    printCenteredInBox(title, "ORO VALLEY", signY + 20, 7, signX, signW)
-    printCenteredInBox(title, "EGG HUNT", signY + 32, 5, signX + 10, signW)
-    printCenteredInBox(title, "Play it. Hack it.", signY + 44, 1, signX + 15, signW)
+    signImg.fillRect(signX, signY, signW, signH, 10)
+    signImg.drawRect(signX, signY, signW, signH, 7)
+    printCenteredInBox(signImg, "CODE NINJAS", signY + 8, 7, signX, signW)
+    printCenteredInBox(signImg, "ORO VALLEY", signY + 20, 7, signX, signW)
+    printCenteredInBox(signImg, "EGG HUNT", signY + 32, 5, signX + 10, signW)
+    printCenteredInBox(signImg, "Play it. Hack it.", signY + 44, 1, signX + 15, signW)
 
     if (titlePage == 0) {
-        // PAGE 1: controls + icons
-        printCenteredShadow(title, "A = Start", signY + signH + 8, 1)
-        printCenteredShadow(title, "B = Info", signY + signH + 18, 1)
+        printCenteredShadow(signImg, "A = Start", signY + signH + 8, 1)
+        printCenteredShadow(signImg, "B = Info", signY + signH + 18, 1)
 
         const iconW = 40
         const iconH = 24
         const iconY = 90
         const paddingX = 6
 
-        // left: Easter egg
-        const eggCardX = paddingX
         if (eggSmall) {
-            const cx = eggCardX + Math.idiv(iconW - eggSmall.width, 2)
+            const cx = paddingX + Math.idiv(iconW - eggSmall.width, 2)
             const cy = iconY + Math.idiv(iconH - eggSmall.height, 2)
-            title.drawTransparentImage(eggSmall, cx, cy)
+            signImg.drawTransparentImage(eggSmall, cx, cy)
         }
-
-        // right: bunny
-        const bunnyCardX = 160 - iconW - paddingX
         if (bunnySmall) {
-            const px = bunnyCardX + Math.idiv(iconW - bunnySmall.width, 2)
+            const px = 160 - iconW - paddingX + Math.idiv(iconW - bunnySmall.width, 2)
             const py = iconY + Math.idiv(iconH - bunnySmall.height, 2)
-            title.drawTransparentImage(bunnySmall, px, py)
+            signImg.drawTransparentImage(bunnySmall, px, py)
         }
 
     } else if (titlePage == 1) {
-        // PAGE 2: how to play
-        printCenteredShadow(title, "HOW TO PLAY", 75, 5)
-        title.print("A = jump", 12, 85, 5)
-        title.print("\u2190/\u2192 = move", 1, 94, 5)
-        title.print("Grab the Easter eggs!", 4, 105, 5)
+        printCenteredShadow(signImg, "HOW TO PLAY", 75, 5)
+        signImg.print("A = jump", 12, 85, 5)
+        signImg.print("\u2190/\u2192 = move", 1, 94, 5)
+        signImg.print("Grab the Easter eggs!", 4, 105, 5)
 
     } else {
-        // PAGE 3: URL / call to action
-        printCenteredShadow(title, "VISIT US", 80, 1)
-        printCenteredShadow(title, "codeninjas.com", 90, 1)
-        printCenteredShadow(title, "/az-oro-valley", 100, 1)
-        printCenteredShadow(title, "Press A to play", 110, 5)
+        printCenteredShadow(signImg, "VISIT US", 80, 1)
+        printCenteredShadow(signImg, "codeninjas.com", 90, 1)
+        printCenteredShadow(signImg, "/az-oro-valley", 100, 1)
+        printCenteredShadow(signImg, "Press A to play", 110, 5)
     }
 
-    scene.setBackgroundImage(title)
+    titleSignSprite = sprites.create(signImg, SpriteKind.Hint)
+    titleSignSprite.setFlag(SpriteFlag.RelativeToCamera, true)
+    titleSignSprite.x = 80
+    titleSignSprite.y = 60
+    titleSignSprite.z = 100
 }
 
 // ---------- GAME END ----------
@@ -919,6 +944,7 @@ function resetToTitle() {
     sprites.destroyAllSpritesOfKind(SpriteKind.Butterfly)
     sprites.destroyAllSpritesOfKind(SpriteKind.EasterEgg)
     sprites.destroyAllSpritesOfKind(SpriteKind.Hint)
+    titleSignSprite = null
     tiles.setCurrentTilemap(tilemap`titleScreen`)
 
     mySprite = null

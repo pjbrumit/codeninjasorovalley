@@ -198,12 +198,7 @@ let startLoc: tiles.Location = null
 let eggCount = 0
 let gameStarted = false
 
-// butterfly intensity
-let frac = 0
-let baseButterflies = 0
-let bonusButterflies = 0
-let totalButterflies = 0
-let collected = 0
+
 
 // player animation state
 let facingLeft = false
@@ -1078,19 +1073,5 @@ game.onUpdateInterval(500, function () {
         }
     }
 
-    // update butterfly count — stays gentle throughout, small bonus for eggs collected
-    frac = info.countdown() / TOTAL_TIME
-    if (frac > 0.66) {
-        baseButterflies = 1
-    } else if (frac > 0.33) {
-        baseButterflies = 2
-    } else {
-        baseButterflies = 3
-    }
-
-    collected = info.score()
-    bonusButterflies = Math.min(3, Math.idiv(collected, 15))
-    totalButterflies = baseButterflies + bonusButterflies
-
-    spawnButterflies(totalButterflies)
+    spawnButterflies(3)
 })

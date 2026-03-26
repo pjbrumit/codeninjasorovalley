@@ -852,6 +852,7 @@ game.onUpdate(function () {
     }
 
     const wantRun = moving && grounded
+    const airborne = !grounded
 
     if (wantRun) {
         if (!isRunning || wantFacingLeft != facingLeft) {
@@ -864,6 +865,14 @@ game.onUpdate(function () {
                 true
             )
         }
+    } else if (airborne) {
+        // show a run frame while in the air instead of idle
+        if (isRunning) {
+            animation.stopAnimation(animation.AnimationTypes.All, mySprite)
+            isRunning = false
+        }
+        facingLeft = wantFacingLeft
+        mySprite.setImage(facingLeft ? playerRunLeft[1] : playerRunRight[1])
     } else {
         if (isRunning) {
             animation.stopAnimation(animation.AnimationTypes.All, mySprite)

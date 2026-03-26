@@ -118,9 +118,43 @@ const LEVEL_WIDTH = 32
 const GROUND_ROW = 15
 const MAX_CANDY = 10
 
-// shared snow image
-const snowImg = image.create(2, 2)
-snowImg.fill(1)
+// ---------- BUTTERFLY ART & COLOR VARIANTS ----------
+
+// base butterfly template — wings use color 6, body uses color 15 (black)
+const butterflyImg = img`
+    . 6 6 . . 6 6 .
+    6 6 6 . . 6 6 6
+    . 6 6 6 6 6 6 .
+    . . 6 f f 6 . .
+    . . . f f . . .
+    . . . f f . . .
+    . . . . . . . .
+`
+
+const BUTTERFLY_WING_COLOR = 6
+// black (15), white (1), brown (13) — these stay as-is
+const BUTTERFLY_FIXED_COLORS = [1, 13, 15]
+// remaining palette colors that cycle randomly per spawn
+const BUTTERFLY_CHANGING_COLORS = [2, 3, 4, 5, 7, 8, 9, 10, 11]
+
+function recolorImage(src: Image, fromColor: number, toColor: number): Image {
+    const out = src.clone()
+    for (let x = 0; x < out.width; x++) {
+        for (let y = 0; y < out.height; y++) {
+            if (out.getPixel(x, y) === fromColor) {
+                out.setPixel(x, y, toColor)
+            }
+        }
+    }
+    return out
+}
+
+function pickButterflyColor(): number {
+    if (Math.percentChance(30)) {
+        return BUTTERFLY_FIXED_COLORS[randint(0, BUTTERFLY_FIXED_COLORS.length - 1)]
+    }
+    return BUTTERFLY_CHANGING_COLORS[randint(0, BUTTERFLY_CHANGING_COLORS.length - 1)]
+}
 
 // ---------- GLOBAL STATE ----------
 
@@ -648,7 +682,9 @@ function spawnSnowflakes(count: number) {
     const toSpawn = Math.min(count, maxFlakes - existing)
 
     for (let i = 0; i < toSpawn; i++) {
-        const flake = sprites.create(snowImg, SpriteKind.Snow)
+        const wingColor = pickButterflyColor()
+        const flakeImg = recolorImage(butterflyImg, BUTTERFLY_WING_COLOR, wingColor)
+        const flake = sprites.create(flakeImg, SpriteKind.Snow)
 
         flake.x = randint(0, mapWidth - 1)
 

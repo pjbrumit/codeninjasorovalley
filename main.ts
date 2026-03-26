@@ -29,11 +29,11 @@ const playerIdle = img`
 `
 
 const playerRun1 = img`
-    . . . . . f f . . . . . f f . .
-    . . . . f 1 1 f . . . f 1 1 f .
-    . . . . f 1 3 f . . f 1 3 1 f .
-    . . . . f 1 3 f . f 1 3 1 f . .
-    . . . . f 1 3 f . f 3 1 f . . .
+    . . . . . . f f . . . . f f . .
+    . . . . . f 1 1 f . . f 1 1 f .
+    . . . . f 1 3 1 f . f 1 3 1 f .
+    . . . f 1 3 1 f . f 1 3 1 f . .
+    . . . f 3 1 f . . f 3 1 f . . .
     . . . f f f f f f f f f f . . .
     . . f f f f f f f f f f f f . .
     . . f f d d d d d d d d f f . .
@@ -48,11 +48,11 @@ const playerRun1 = img`
 `
 
 const playerRun2 = img`
-    . . . . . f f . . . . . f f . .
-    . . . . f 1 1 f . . . f 1 1 f .
-    . . . . f 1 3 f . . f 1 3 1 f .
-    . . . . f 1 3 f . f 1 3 1 f . .
-    . . . . f 1 3 f . f 3 1 f . . .
+    . . . . . . f f . . . . f f . .
+    . . . . . f 1 1 f . . f 1 1 f .
+    . . . . f 1 3 1 f . f 1 3 1 f .
+    . . . f 1 3 1 f . f 1 3 1 f . .
+    . . . f 3 1 f . . f 3 1 f . . .
     . . . f f f f f f f f f f . . .
     . . f f f f f f f f f f f f . .
     . . f f d d d d d d d d f f . .
@@ -67,11 +67,11 @@ const playerRun2 = img`
 `
 
 const playerRun3 = img`
-    . . . . . f f . . . . . f f . .
-    . . . . f 1 1 f . . . f 1 1 f .
-    . . . . f 1 3 f . . f 1 3 1 f .
-    . . . . f 1 3 f . f 1 3 1 f . .
-    . . . . f 1 3 f . f 3 1 f . . .
+    . . . . . . f f . . . . f f . .
+    . . . . . f 1 1 f . . f 1 1 f .
+    . . . . f 1 3 1 f . f 1 3 1 f .
+    . . . f 1 3 1 f . f 1 3 1 f . .
+    . . . f 3 1 f . . f 3 1 f . . .
     . . . f f f f f f f f f f . . .
     . . f f f f f f f f f f f f . .
     . . f f d d d d d d d d f f . .

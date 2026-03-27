@@ -571,12 +571,14 @@ function showTitleScreen() {
     signImg.drawRect(signX, signY, signW, signH, 7)
     printCenteredInBox(signImg, "CODE NINJAS", signY + 8, 7, signX, signW)
     printCenteredInBox(signImg, "ORO VALLEY", signY + 20, 7, signX, signW)
-    printCenteredInBox(signImg, "EGG HUNT", signY + 32, 5, signX + 10, signW)
-    printCenteredInBox(signImg, "Play it. Hack it.", signY + 44, 1, signX + 15, signW)
+    printCenteredInBox(signImg, "EGG HUNT", signY + 32, 5, signX, signW)
+    printCenteredInBox(signImg, "Play it. Hack it.", signY + 44, 1, signX, signW)
+    // B-cycle hint in bottom-right corner of sign on every page
+    signImg.print("B>", signX + signW - 16, signY + signH - 9, 5)
 
     if (titlePage == 0) {
         printCenteredShadow(signImg, "A = Start", signY + signH + 8, 1)
-        printCenteredShadow(signImg, "B = Info", signY + signH + 18, 1)
+        printCenteredShadow(signImg, "B = More Info", signY + signH + 18, 1)
 
         const iconW = 40
         const iconH = 24
@@ -596,9 +598,9 @@ function showTitleScreen() {
 
     } else if (titlePage == 1) {
         printCenteredShadow(signImg, "HOW TO PLAY", 75, 5)
-        signImg.print("A = jump", 12, 85, 5)
-        signImg.print("\u2190/\u2192 = move", 1, 94, 5)
-        signImg.print("Grab the Easter eggs!", 4, 105, 5)
+        printCenteredShadow(signImg, "A=jump  L/R=move", 85, 5)
+        printCenteredShadow(signImg, "Collect eggs, then", 96, 5)
+        printCenteredShadow(signImg, "find the Bunny!", 106, 5)
 
     } else {
         printCenteredShadow(signImg, "VISIT US", 80, 1)

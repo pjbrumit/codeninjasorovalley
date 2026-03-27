@@ -205,6 +205,7 @@ let facingLeft = false
 let isRunning = false
 
 let bunny: Sprite = null
+let bunnyLastUpdate = 0
 let titleSignSprite: Sprite = null
 
 // ---------- CONTROLS ----------
@@ -472,6 +473,7 @@ function spawnBunny() {
 
     bunny.ay = 400
     bunny.setFlag(SpriteFlag.GhostThroughWalls, false)
+    bunnyLastUpdate = 0
 
     music.powerUp.play()
 
@@ -825,13 +827,40 @@ function spawnButterflies(count: number) {
 
 // ---------- BUNNY AI ----------
 
-game.onUpdateInterval(100, function () {
+// Per-level config: [reactionMs, runSpeed, gapJumpChance]
+const BUNNY_REACTION = [600, 400, 200, 100]
+const BUNNY_SPEED    = [55,  85,  115, 145]
+const BUNNY_GAP_JUMP = [15,  40,  70,  90]
+
+game.onUpdate(function () {
     if (!gameStarted || isLevelTransition || !bunny || !mySprite) return
+
+    // Apply wall boundary every frame regardless of reaction timer
+    const minX = 8
+    const maxX = LEVEL_WIDTH * 16 - 8
+    if (bunny.x < minX) {
+        bunny.x = minX
+        bunny.vx = Math.abs(bunny.vx)
+    } else if (bunny.x > maxX) {
+        bunny.x = maxX
+        bunny.vx = -Math.abs(bunny.vx)
+    }
+
+    // Throttle decision-making to the per-level reaction delay
+    const now = game.runtime()
+    if (now - bunnyLastUpdate < BUNNY_REACTION[currentLevel]) return
+    bunnyLastUpdate = now
 
     const dx = bunny.x - mySprite.x
     const dy = bunny.y - mySprite.y
 
+    // Run away from the player
     let dir = dx >= 0 ? 1 : -1
+
+    // Level 4: random fake-out reversal
+    if (currentLevel == 3 && Math.percentChance(15)) {
+        dir *= -1
+    }
 
     const colHere = Math.idiv(bunny.x, 16)
     const rowHere = Math.idiv(bunny.y, 16)
@@ -849,48 +878,27 @@ game.onUpdateInterval(100, function () {
             const groundAhead = tiles.tileAtLocationIsWall(belowAhead)
 
             if (!groundAhead) {
-                const jumpChance =
-                    currentLevel == 0 ? 0 :
-                        currentLevel == 1 ? 30 :
-                            currentLevel == 2 ? 60 : 85
-
-                if (Math.percentChance(jumpChance)) {
+                // Gap ahead — jump or turn based on level
+                if (Math.percentChance(BUNNY_GAP_JUMP[currentLevel])) {
                     bunny.vy = -220
                 } else {
                     dir *= -1
                 }
             } else {
-                const horizDist = Math.abs(dx)
-                const vertDist = Math.abs(dy)
-                if (
-                    currentLevel >= 2 &&
-                    horizDist < 40 &&
-                    vertDist < 32 &&
-                    Math.percentChance(20 + currentLevel * 5)
-                ) {
+                // Ground ahead — level 3+: panic jump when player is close
+                if (currentLevel >= 2 && Math.abs(dx) < 48 && Math.percentChance(35)) {
+                    bunny.vy = -220
+                }
+                // Level 4: also jump toward higher platforms when player is close
+                if (currentLevel == 3 && Math.abs(dx) < 64 && Math.percentChance(25)) {
                     bunny.vy = -220
                 }
             }
         }
     }
 
-    const runSpeed =
-        currentLevel == 0 ? 60 :
-            currentLevel == 1 ? 80 :
-                currentLevel == 2 ? 110 : 140
-
-    const targetVx = dir * runSpeed
-    bunny.vx += (targetVx - bunny.vx) * 0.25
-
-    const minX = 8
-    const maxX = LEVEL_WIDTH * 16 - 8
-    if (bunny.x < minX) {
-        bunny.x = minX
-        bunny.vx = Math.abs(bunny.vx)
-    } else if (bunny.x > maxX) {
-        bunny.x = maxX
-        bunny.vx = -Math.abs(bunny.vx)
-    }
+    const targetVx = dir * BUNNY_SPEED[currentLevel]
+    bunny.vx += (targetVx - bunny.vx) * 0.35
 })
 
 // ---------- PLAYER ANIMATION UPDATE ----------

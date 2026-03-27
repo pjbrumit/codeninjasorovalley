@@ -575,7 +575,7 @@ function showTitleScreen() {
         printCenteredInBox(signImg, "CODE NINJAS", signY + 8, 7, signX, signW)
         printCenteredInBox(signImg, "ORO VALLEY", signY + 20, 7, signX, signW)
         printCenteredInBox(signImg, "EGG HUNT", signY + 32, 5, signX, signW)
-        printCenteredInBox(signImg, "Play it. Hack it.", signY + 46, 1, signX, signW)
+        signImg.print("Play it. Hack it.", 29, signY + 46, 1)
 
         // A = Start centered; B = Next centered — egg far-left, bunny far-right
         printCenteredShadow(signImg, "A = Start", signY + signH + 8, 1)
@@ -594,10 +594,10 @@ function showTitleScreen() {
 
     } else if (titlePage == 1) {
         // Page 1: how-to-play replaces branding inside the sign
-        printCenteredInBox(signImg, "HOW TO PLAY", signY + 8, 5, signX, signW)
-        printCenteredInBox(signImg, "A=jump  L/R=move", signY + 22, 7, signX, signW)
-        printCenteredInBox(signImg, "Collect eggs, then", signY + 36, 1, signX, signW)
-        printCenteredInBox(signImg, "find the Bunny!", signY + 48, 1, signX, signW)
+        signImg.print("HOW TO PLAY", 47, signY + 8, 5)
+        signImg.print("A=jump  L/R=move", 32, signY + 22, 7)
+        signImg.print("Collect eggs, then", 26, signY + 36, 1)
+        signImg.print("find the Bunny!", 35, signY + 48, 1)
 
         printCenteredShadow(signImg, "A = Start", signY + signH + 10, 1)
         printCenteredShadow(signImg, "B = Next", signY + signH + 22, 1)

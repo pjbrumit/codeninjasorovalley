@@ -676,7 +676,7 @@ sprites.onOverlap(SpriteKind.Food, SpriteKind.Player, function (sprite, otherSpr
     if (!gameStarted || isLevelTransition) return
 
     sprite.destroy()
-    music.baDing.play()
+    
     info.changeScoreBy(1)
 
     if (eggCount > 0) {
@@ -718,7 +718,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.EasterEgg, function (player, gif
     banner.y = 60
     banner.lifespan = 3200
 
-    music.baDing.play()
+    
     music.powerUp.play()
     pause(3200)
 

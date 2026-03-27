@@ -206,6 +206,7 @@ let isRunning = false
 
 let bunny: Sprite = null
 let bunnyLastUpdate = 0
+let bunnyLastX = 0
 let titleSignSprite: Sprite = null
 
 // ---------- CONTROLS ----------
@@ -474,6 +475,7 @@ function spawnBunny() {
     bunny.ay = 400
     bunny.setFlag(SpriteFlag.GhostThroughWalls, false)
     bunnyLastUpdate = 0
+    bunnyLastX = bunny.x
 
     music.powerUp.play()
 
@@ -899,6 +901,26 @@ game.onUpdate(function () {
 
     const targetVx = dir * BUNNY_SPEED[currentLevel]
     bunny.vx += (targetVx - bunny.vx) * 0.35
+})
+
+// Bunny "never stop" safeguards — run every 100ms independently of reaction delay
+game.onUpdateInterval(100, function () {
+    if (!gameStarted || isLevelTransition || !bunny || !mySprite) return
+
+    const speed = BUNNY_SPEED[currentLevel]
+
+    // Safeguard 1: if vx has stalled below threshold, restore full speed
+    if (Math.abs(bunny.vx) < 20) {
+        const dir = bunny.x >= mySprite.x ? 1 : -1
+        bunny.vx = dir * speed
+    }
+
+    // Safeguard 2: if bunny hasn't moved more than 2px, force reversal
+    if (Math.abs(bunny.x - bunnyLastX) <= 2) {
+        bunny.vx = -Math.sign(bunny.vx || 1) * speed
+    }
+
+    bunnyLastX = bunny.x
 })
 
 // ---------- PLAYER ANIMATION UPDATE ----------

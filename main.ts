@@ -358,7 +358,7 @@ function showHuntBunnyHint() {
         huntHintSprite = null
     }
 
-    const text = "Find the Easter Bunny!"
+    const text = "             Find the Easter Bunny!"
     const charW = 8
     const padding = 4
 
@@ -572,9 +572,9 @@ function showTitleScreen() {
 
     if (titlePage == 0) {
         // Page 0: branding header fills the sign
-        printCenteredInBox(signImg, "CODE NINJAS", signY + 8, 7, signX, signW)
-        printCenteredInBox(signImg, "ORO VALLEY", signY + 20, 7, signX, signW)
-        printCenteredInBox(signImg, "EGG HUNT", signY + 32, 5, signX, signW)
+        printCenteredInBox(signImg, "CODE NINJAS", signY + 8, 7, signX + 8, signW)
+        printCenteredInBox(signImg, "ORO VALLEY", signY + 20, 7, signX + 8, signW)
+        printCenteredInBox(signImg, "EGG HUNT", signY + 32, 5, signX + 5, signW)
         signImg.print("Play it. Hack it.", 29, signY + 46, 1)
 
         // A = Start centered; B = Next centered — egg far-left, bunny far-right
@@ -604,10 +604,10 @@ function showTitleScreen() {
 
     } else {
         // Page 2: visit-us replaces branding inside the sign
-        printCenteredInBox(signImg, "VISIT US", signY + 10, 5, signX, signW)
-        signImg.print("codeninjas.com", 26, signY + 24, 1)
-        signImg.print("/az-oro-valley", 26, signY + 36, 1)
-        signImg.print("Press A to play!", 26, signY + 50, 7)
+        printCenteredInBox(signImg, "VISIT US", signY + 10, 5, signX + 8, signW)
+        signImg.print("codeninjas.com", 38, signY + 24, 1)
+        signImg.print("/az-oro-valley", 38, signY + 36, 1)
+        signImg.print("Press A to play!", 35, signY + 50, 7)
 
         printCenteredShadow(signImg, "A = Start", signY + signH + 14, 1)
     }

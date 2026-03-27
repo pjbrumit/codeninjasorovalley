@@ -815,7 +815,7 @@ function spawnButterflies(count: number) {
 
 // ---------- BUNNY AI ----------
 
-game.onUpdate(function () {
+game.onUpdateInterval(100, function () {
     if (!gameStarted || isLevelTransition || !bunny || !mySprite) return
 
     const dx = bunny.x - mySprite.x
@@ -984,7 +984,7 @@ const eggBig = img`
     . . . . f 4 4 4 4 4 4 f . . . .
     . . . . . f f f f f f . . . . .
 `
-eggSmall = eggBig.clone()
+eggSmall = eggBig
 
 // Egg color variants: [mainColor, stripeColor]
 // mainColor replaces the orange body (palette index 4)
@@ -1049,7 +1049,7 @@ const bunnyImg = img`
     ................................
     ................................
 `
-const bunnySmall = bunnyImg.clone()
+const bunnySmall = bunnyImg
 
 // ---------- BOOT ----------
 
@@ -1058,12 +1058,10 @@ isLevelTransition = false
 
 // single 500 ms interval for eggs, flowers, and butterflies
 game.onUpdateInterval(500, function () {
-    // spawn Easter eggs (only during gameplay)
+    if (!gameStarted || isLevelTransition) return
+
+    // spawn Easter eggs and retry bunny spawn if needed
     spawnEgg()
-
-    if (!gameStarted) return
-
-    // retry bunny spawn if target reached but bunny not yet created
     maybeSpawnBunny()
 
     // blink spring flowers

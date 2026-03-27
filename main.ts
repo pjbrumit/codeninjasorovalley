@@ -349,7 +349,15 @@ function spawnEgg() {
     const variant = EGG_VARIANTS[randint(0, EGG_VARIANTS.length - 1)]
     const egg = sprites.create(makeEggImage(variant[0], variant[1]), SpriteKind.Food)
     tiles.placeOnTile(egg, loc)
-    egg.y -= 4
+
+    // Verify solid ground is directly below the placed egg
+    const eggCol = Math.idiv(egg.x, 16)
+    const eggRow = Math.idiv(egg.y, 16)
+    if (!tiles.tileAtLocationIsWall(tiles.getTileLocation(eggCol, eggRow + 1))) {
+        egg.destroy()
+        return
+    }
+
     eggCount++
 }
 

@@ -228,6 +228,7 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
 // ---------- GAME FLOW ----------
 
 function startGame() {
+    music.stopAllSounds()
     totalEggsCollected = 0
     currentLevel = 0
     gameStarted = true
@@ -472,6 +473,8 @@ function spawnBunny() {
     bunny.ay = 400
     bunny.setFlag(SpriteFlag.GhostThroughWalls, false)
 
+    music.powerUp.play()
+
     // confetti only while the bunny is on the loose!
     effects.confetti.startScreenEffect()
 }
@@ -505,6 +508,11 @@ function printCenteredShadow(
 }
 
 function showTitleScreen() {
+    // Gentle looping melody on the title screen (only start it once)
+    if (sprites.allOfKind(SpriteKind.Butterfly).length == 0) {
+        music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.LoopingInBackground)
+    }
+
     // Sky background only — sign and butterflies are sprites
     title = image.create(160, 120)
     title.fill(9)
@@ -625,6 +633,11 @@ function finishGameWithTotal(fromTimer: boolean) {
     gameStarted = false
     info.stopCountdown()
     effects.confetti.endScreenEffect()
+    if (fromTimer) {
+        music.bigCrash.play()
+    } else {
+        music.powerUp.play()
+    }
 
     const total = totalEggsCollected
     let header = fromTimer ? "Time's up!\n" : "Great job!\n"
@@ -668,6 +681,7 @@ sprites.onOverlap(SpriteKind.Food, SpriteKind.Player, function (sprite, otherSpr
     if (!gameStarted || isLevelTransition) return
 
     sprite.destroy()
+    music.baDing.play()
     info.changeScoreBy(1)
 
     if (eggCount > 0) {
@@ -710,6 +724,7 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.EasterEgg, function (player, gif
     banner.lifespan = 3200
 
     music.baDing.play()
+    music.powerUp.play()
     pause(3200)
 
     currentLevel++

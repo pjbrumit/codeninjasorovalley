@@ -508,11 +508,6 @@ function printCenteredShadow(
 }
 
 function showTitleScreen() {
-    // Gentle looping melody on the title screen (only start it once)
-    if (sprites.allOfKind(SpriteKind.Butterfly).length == 0) {
-        music.play(music.melodyPlayable(music.baDing), music.PlaybackMode.LoopingInBackground)
-    }
-
     // Sky background only — sign and butterflies are sprites
     title = image.create(160, 120)
     title.fill(9)

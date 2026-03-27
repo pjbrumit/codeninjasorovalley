@@ -565,48 +565,51 @@ function showTitleScreen() {
     const signX = 16
     const signY = 18
     const signW = 128
-    const signH = 56
+    const signH = 64
 
     signImg.fillRect(signX, signY, signW, signH, 10)
     signImg.drawRect(signX, signY, signW, signH, 7)
-    printCenteredInBox(signImg, "CODE NINJAS", signY + 8, 7, signX, signW)
-    printCenteredInBox(signImg, "ORO VALLEY", signY + 20, 7, signX, signW)
-    printCenteredInBox(signImg, "EGG HUNT", signY + 32, 5, signX, signW)
-    printCenteredInBox(signImg, "Play it. Hack it.", signY + 44, 1, signX, signW)
-    // B-cycle hint in bottom-right corner of sign on every page
-    signImg.print("B>", signX + signW - 16, signY + signH - 9, 5)
 
     if (titlePage == 0) {
-        printCenteredShadow(signImg, "A = Start", signY + signH + 8, 1)
-        printCenteredShadow(signImg, "B = More Info", signY + signH + 18, 1)
+        // Page 0: branding header fills the sign
+        printCenteredInBox(signImg, "CODE NINJAS", signY + 8, 7, signX, signW)
+        printCenteredInBox(signImg, "ORO VALLEY", signY + 20, 7, signX, signW)
+        printCenteredInBox(signImg, "EGG HUNT", signY + 32, 5, signX, signW)
+        printCenteredInBox(signImg, "Play it. Hack it.", signY + 46, 1, signX, signW)
 
-        const iconW = 40
-        const iconH = 24
-        const iconY = 90
-        const paddingX = 6
+        // A = Start centered; B = Next centered — egg far-left, bunny far-right
+        printCenteredShadow(signImg, "A = Start", signY + signH + 8, 1)
+        printCenteredShadow(signImg, "B = Next", signY + signH + 20, 1)
 
         if (eggSmall) {
-            const cx = paddingX + Math.idiv(iconW - eggSmall.width, 2)
-            const cy = iconY + Math.idiv(iconH - eggSmall.height, 2)
-            signImg.drawTransparentImage(eggSmall, cx, cy)
+            signImg.drawTransparentImage(eggSmall,
+                Math.idiv(16 - eggSmall.width, 2),
+                signY + signH + 4)
         }
         if (bunnySmall) {
-            const px = 160 - iconW - paddingX + Math.idiv(iconW - bunnySmall.width, 2)
-            const py = iconY + Math.idiv(iconH - bunnySmall.height, 2)
-            signImg.drawTransparentImage(bunnySmall, px, py)
+            signImg.drawTransparentImage(bunnySmall,
+                160 - bunnySmall.width,
+                signY + signH)
         }
 
     } else if (titlePage == 1) {
-        printCenteredShadow(signImg, "HOW TO PLAY", 75, 5)
-        printCenteredShadow(signImg, "A=jump  L/R=move", 85, 5)
-        printCenteredShadow(signImg, "Collect eggs, then", 96, 5)
-        printCenteredShadow(signImg, "find the Bunny!", 106, 5)
+        // Page 1: how-to-play replaces branding inside the sign
+        printCenteredInBox(signImg, "HOW TO PLAY", signY + 8, 5, signX, signW)
+        printCenteredInBox(signImg, "A=jump  L/R=move", signY + 22, 7, signX, signW)
+        printCenteredInBox(signImg, "Collect eggs, then", signY + 36, 1, signX, signW)
+        printCenteredInBox(signImg, "find the Bunny!", signY + 48, 1, signX, signW)
+
+        printCenteredShadow(signImg, "A = Start", signY + signH + 10, 1)
+        printCenteredShadow(signImg, "B = Next", signY + signH + 22, 1)
 
     } else {
-        printCenteredShadow(signImg, "VISIT US", 80, 1)
-        printCenteredShadow(signImg, "codeninjas.com", 90, 1)
-        printCenteredShadow(signImg, "/az-oro-valley", 100, 1)
-        printCenteredShadow(signImg, "Press A to play", 110, 5)
+        // Page 2: visit-us replaces branding inside the sign
+        printCenteredInBox(signImg, "VISIT US", signY + 10, 5, signX, signW)
+        printCenteredInBox(signImg, "codeninjas.com", signY + 24, 1, signX, signW)
+        printCenteredInBox(signImg, "/az-oro-valley", signY + 36, 1, signX, signW)
+        printCenteredInBox(signImg, "Press A to play!", signY + 50, 7, signX, signW)
+
+        printCenteredShadow(signImg, "A = Start", signY + signH + 14, 1)
     }
 
     titleSignSprite = sprites.create(signImg, SpriteKind.Hint)

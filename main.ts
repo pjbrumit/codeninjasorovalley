@@ -605,9 +605,9 @@ function showTitleScreen() {
     } else {
         // Page 2: visit-us replaces branding inside the sign
         printCenteredInBox(signImg, "VISIT US", signY + 10, 5, signX, signW)
-        printCenteredInBox(signImg, "codeninjas.com", signY + 24, 1, signX, signW)
-        printCenteredInBox(signImg, "/az-oro-valley", signY + 36, 1, signX, signW)
-        printCenteredInBox(signImg, "Press A to play!", signY + 50, 7, signX, signW)
+        signImg.print("codeninjas.com", 20, signY + 24, 1)
+        signImg.print("/az-oro-valley", 20, signY + 36, 1)
+        signImg.print("Press A to play!", 20, signY + 50, 7)
 
         printCenteredShadow(signImg, "A = Start", signY + signH + 14, 1)
     }

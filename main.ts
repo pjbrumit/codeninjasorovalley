@@ -208,6 +208,7 @@ let bunny: Sprite = null
 let bunnyLastUpdate = 0
 let bunnyLastX = 0
 let titleSignSprite: Sprite = null
+let eggProgressSprite: Sprite = null
 
 // ---------- CONTROLS ----------
 
@@ -222,8 +223,10 @@ controller.A.onEvent(ControllerButtonEvent.Pressed, function () {
         startGame()
         return
     }
+    if (isLevelTransition) return
     if (mySprite && mySprite.isHittingTile(CollisionDirection.Bottom)) {
         mySprite.vy = -220
+        music.jumpUp.play()
     }
 })
 
@@ -242,14 +245,16 @@ function startLevel() {
     eggCount = 0
     levelEggsCollected = 0
     timeLeft = TOTAL_TIME
-    info.setScore(0)
-    info.startCountdown(TOTAL_TIME)
 
     // reset per-level hint
     huntHintShownThisLevel = false
     if (huntHintSprite) {
         huntHintSprite.destroy()
         huntHintSprite = null
+    }
+    if (eggProgressSprite) {
+        eggProgressSprite.destroy()
+        eggProgressSprite = null
     }
 
     // clear title screen sprites
@@ -291,6 +296,10 @@ function startLevel() {
     tiles.placeOnTile(mySprite, startLoc)
     mySprite.vx = 0
     mySprite.vy = 0
+
+    showReadyCountdown()
+    updateEggProgressHUD()
+    info.startCountdown(TOTAL_TIME)
 }
 
 // ---------- SPAWN HELPERS ----------
@@ -385,6 +394,72 @@ function showHuntBunnyHint() {
     huntHintSprite.x = 80
     huntHintSprite.y = 60
     huntHintSprite.lifespan = 1500
+}
+
+function updateEggProgressHUD() {
+    const target = requiredEggsForLevel(currentLevel)
+    const text = levelEggsCollected + " / " + target + " eggs"
+    const w = text.length * 8 + 8
+    const hudImg = image.create(w, 14)
+    hudImg.fill(15)
+    hudImg.drawRect(0, 0, w, 14, 5)
+    hudImg.print(text, 4, 3, 5)
+    if (!eggProgressSprite) {
+        eggProgressSprite = sprites.create(hudImg, SpriteKind.Hint)
+        eggProgressSprite.setFlag(SpriteFlag.RelativeToCamera, true)
+        eggProgressSprite.x = 80
+        eggProgressSprite.y = 112
+        eggProgressSprite.z = 50
+    } else {
+        eggProgressSprite.setImage(hudImg)
+    }
+}
+
+function showReadyCountdown() {
+    isLevelTransition = true
+    if (mySprite) controller.moveSprite(mySprite, 0, 0)
+    const w = 120
+    const h = 36
+    let cdImg: Image
+
+    const cdSprite = sprites.create(image.create(w, h), SpriteKind.Hint)
+    cdSprite.setFlag(SpriteFlag.RelativeToCamera, true)
+    cdSprite.x = 80
+    cdSprite.y = 60
+    cdSprite.z = 200
+
+    // Level header + Get Ready
+    cdImg = image.create(w, h)
+    cdImg.fill(15)
+    cdImg.drawRect(0, 0, w, h, 5)
+    cdImg.print("LEVEL " + (currentLevel + 1), Math.idiv(w - 56, 2), 8, 5)
+    cdImg.print("Get Ready!", Math.idiv(w - 80, 2), 20, 1)
+    cdSprite.setImage(cdImg)
+    pause(1000)
+
+    // 3, 2, 1
+    const numColors = [2, 4, 7]
+    for (let n = 3; n >= 1; n--) {
+        const col = numColors[3 - n]
+        cdImg = image.create(w, h)
+        cdImg.fill(15)
+        cdImg.drawRect(0, 0, w, h, col)
+        cdImg.print("" + n, Math.idiv(w - 8, 2), Math.idiv(h - 8, 2), col)
+        cdSprite.setImage(cdImg)
+        pause(600)
+    }
+
+    // GO!
+    cdImg = image.create(w, h)
+    cdImg.fill(15)
+    cdImg.drawRect(0, 0, w, h, 7)
+    cdImg.print("GO!", Math.idiv(w - 24, 2), Math.idiv(h - 8, 2), 7)
+    cdSprite.setImage(cdImg)
+    pause(500)
+
+    cdSprite.destroy()
+    if (mySprite) controller.moveSprite(mySprite, 100, 0)
+    isLevelTransition = false
 }
 
 function maybeSpawnBunny() {
@@ -688,8 +763,6 @@ sprites.onOverlap(SpriteKind.Food, SpriteKind.Player, function (sprite, otherSpr
     if (!gameStarted || isLevelTransition) return
 
     sprite.destroy()
-    
-    info.changeScoreBy(1)
 
     if (eggCount > 0) {
         eggCount--
@@ -697,6 +770,7 @@ sprites.onOverlap(SpriteKind.Food, SpriteKind.Player, function (sprite, otherSpr
 
     levelEggsCollected++
     totalEggsCollected++
+    updateEggProgressHUD()
 
     const target = requiredEggsForLevel(currentLevel)
     if (!huntHintShownThisLevel && levelEggsCollected >= target) {
@@ -716,22 +790,28 @@ sprites.onOverlap(SpriteKind.Player, SpriteKind.EasterEgg, function (player, gif
     info.stopCountdown()
     mySprite.vx = 0
     mySprite.vy = 0
+    if (eggProgressSprite) {
+        eggProgressSprite.destroy()
+        eggProgressSprite = null
+    }
 
     const levelNumber = currentLevel + 1
     const target = requiredEggsForLevel(currentLevel)
     const thisLevelEggs = levelEggsCollected
 
-    const banner = sprites.create(image.create(140, 24), SpriteKind.Hint)
-    banner.image.fill(0)
-    banner.image.print("Level " + levelNumber + " complete!", 4, 4, 10)
-    banner.image.print(thisLevelEggs + " / " + target + " eggs", 4, 14, 13)
+    const banner = sprites.create(image.create(140, 28), SpriteKind.Hint)
+    banner.image.fill(15)
+    banner.image.drawRect(0, 0, 140, 28, 5)
+    banner.image.print("Level " + levelNumber + " complete!", 4, 6, 10)
+    banner.image.print(thisLevelEggs + " / " + target + " eggs", 4, 17, 1)
     banner.setFlag(SpriteFlag.RelativeToCamera, true)
     banner.x = 80
     banner.y = 60
     banner.lifespan = 3200
 
-    
-    music.powerUp.play()
+
+    music.stopAllSounds()
+    music.playMelody("C5:1 E5:1 G5:1 C6:2 E6:3", 180)
     pause(3200)
 
     currentLevel++
@@ -839,8 +919,8 @@ function spawnButterflies(count: number) {
 
 // Per-level config: [reactionMs, runSpeed, gapJumpChance]
 const BUNNY_REACTION = [600, 400, 200, 100]
-const BUNNY_SPEED    = [55,  85,  115, 145]
-const BUNNY_GAP_JUMP = [15,  40,  70,  90]
+const BUNNY_SPEED = [55, 85, 115, 145]
+const BUNNY_GAP_JUMP = [15, 40, 70, 90]
 
 game.onUpdate(function () {
     if (!gameStarted || isLevelTransition || !bunny || !mySprite) return
@@ -993,6 +1073,8 @@ function resetToTitle() {
     sprites.destroyAllSpritesOfKind(SpriteKind.EasterEgg)
     sprites.destroyAllSpritesOfKind(SpriteKind.Hint)
     titleSignSprite = null
+    eggProgressSprite = null
+    isLevelTransition = false
     tiles.setCurrentTilemap(tilemap`titleScreen`)
 
     mySprite = null
@@ -1002,7 +1084,6 @@ function resetToTitle() {
     totalEggsCollected = 0
     levelEggsCollected = 0
     currentLevel = 0
-    info.setScore(0)
 
     scene.cameraFollowSprite(null)
     scene.centerCameraAt(80, 60)
@@ -1039,14 +1120,14 @@ eggSmall = eggBig
 // stripeColor replaces the brown band (palette index 13)
 // outline (f=black) and highlights (1=white) always stay
 const EGG_VARIANTS: number[][] = [
-    [4,  13],  // original orange / brown
-    [3,  10],  // pink / purple
-    [9,   8],  // sky blue / dark blue
-    [7,   6],  // green / teal
-    [5,   4],  // yellow / orange
-    [10,  8],  // purple / dark blue
-    [2,  12],  // red / dark grey
-    [6,   8],  // teal / dark blue
+    [4, 13],  // original orange / brown
+    [3, 10],  // pink / purple
+    [9, 8],  // sky blue / dark blue
+    [7, 6],  // green / teal
+    [5, 4],  // yellow / orange
+    [10, 8],  // purple / dark blue
+    [2, 12],  // red / dark grey
+    [6, 8],  // teal / dark blue
     [11, 10],  // lavender / purple
 ]
 
@@ -1055,7 +1136,7 @@ function makeEggImage(mainColor: number, stripeColor: number): Image {
     for (let x = 0; x < img.width; x++) {
         for (let y = 0; y < img.height; y++) {
             const c = img.getPixel(x, y)
-            if (c == 4)  img.setPixel(x, y, mainColor)
+            if (c == 4) img.setPixel(x, y, mainColor)
             else if (c == 13) img.setPixel(x, y, stripeColor)
         }
     }
